@@ -1,0 +1,29 @@
+.LeftDrawer-drawerRoot {
+    background-color: red;
+}
+
+.LeftDrawer-drawerPaper {
+    position: relative;
+    white-space: nowrap;
+    width: 230px;
+    transition: width 0.5s !important;
+    -webkit-transition: width 0.5s !important;
+    -moz-transition: width 0.5s !important;
+    -o-transition: width 0.5s !important; 
+    -ms-transition: width 0.5s !important;
+}
+
+.LeftDrawer-drawerPaperClose {
+    position: relative;
+    overflow-x: hidden;
+    transition: width 0.5s;
+    -webkit-transition: width 0.5s !important;
+    -moz-transition: width 0.5s !important;
+    -o-transition: width 0.5s !important; 
+    -ms-transition: width 0.5s !important;
+    width: 70px;
+}
+
+.LeftDrawer-menuItem {
+    padding-left: 20px !important;
+}

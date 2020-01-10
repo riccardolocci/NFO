@@ -1,0 +1,13 @@
+.NavBar-appBar {
+  z-index: 10; 
+  padding-left: 0;
+}
+
+.NavBar-spacer {
+  width: 20px;
+}
+
+.NavBar-toolbar {
+  margin: 0;
+  padding-left: 10px !important;
+}
