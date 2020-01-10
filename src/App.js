@@ -4,6 +4,7 @@ import './css/App.css';
 import Homepage from "./components/Homepage";
 import LeftDrawer from './components/LeftDrawer';
 import NavBar from './components/NavBar';
+import SPP from './components/SPP'
 
 import { HashRouter as Router, Route, Switch } from 'react-router-dom';
 
@@ -36,6 +37,13 @@ class App extends Component {
                     <Route 
                       exact path="/"
                       component={Homepage}
+                    />
+                  </Switch>
+
+                  <Switch>
+                    <Route 
+                      exact path="/spp"
+                      component={SPP}
                     />
                   </Switch>
                 </div>
