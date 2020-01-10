@@ -4,8 +4,9 @@ import './css/App.css';
 import Homepage from "./components/Homepage";
 import LeftDrawer from './components/LeftDrawer';
 import NavBar from './components/NavBar';
-import SPP from './components/SPP'
-import MFP from './components/MFP'
+import SPP from './components/SPP';
+import MFP from './components/MFP';
+import MCFP from './components/MCFP';
 
 import { HashRouter as Router, Route, Switch } from 'react-router-dom';
 
@@ -52,6 +53,13 @@ class App extends Component {
                     <Route 
                       exact path="/mfp"
                       component={MFP}
+                    />
+                  </Switch>
+
+                  <Switch>
+                    <Route 
+                      exact path="/mcfp"
+                      component={MCFP}
                     />
                   </Switch>
                 </div>
