@@ -1,0 +1,18 @@
+.SPP-root{
+    height: 100%;
+}
+
+.SPP-contentOne {
+    height: 50%;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.SPP-contentOneClosed {
+    height: 0;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    transition: 1s;
+}

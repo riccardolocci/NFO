@@ -1,19 +1,32 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import Dropzone from './Dropzone';
+
+import '../css/SPP.css'
 
 class SPP extends Component {
     constructor(props){
         super(props)
-        this.state = {}
+        this.state = {
+            file: null
+        }
+    }
+
+    getFile = (f) => {
+        this.setState({
+            file: f
+        })
     }
 
     render() {
         return (
-            <div>
-                <div>
-                    <div style={{extAlign: 'center'}}><h1>SPP</h1></div>
-                </div>
-                <div>
+            <div className="SPP-root">
+                <div><h1>SPP</h1></div>
+                <div className={this.state.file ? "SPP-contentOneClosed" : "SPP-contentOne"}>
                     TBI
+                    <Dropzone
+                        getFile={this.getFile}
+                        hide={this.state.file}
+                    />
                 </div>
             </div>
         )

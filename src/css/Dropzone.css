@@ -1,0 +1,27 @@
+.Dropzone-root {
+    width: 98%;
+    height: 50%;
+    margin-top: 50px;
+}
+
+.Dropzone-paper {
+    height: 100%; 
+    padding: 1%;
+    margin-top: 50px;
+}
+
+.Dropzone-paperHide {
+    height: 100%;
+    margin-top: 50px;
+}
+
+.Dropzone-dropPaper {
+    height: 100%;
+    background-color: rgba(0,0,0,0.1) !important;
+    overflow-y: auto;
+    position: relative;
+}
+
+.Dropzone-dropDiv {
+    height: 100%;
+}
