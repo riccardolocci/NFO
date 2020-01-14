@@ -1,0 +1,8 @@
+.GraphBuilder-root {
+    position: relative;
+    border: solid 1px;
+    overflow: auto;
+    width: 80%;
+    height: 500px;
+    margin: auto;
+}

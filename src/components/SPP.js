@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Dropzone from './Dropzone';
+import GraphBuilder from './GraphBuilder';
 
 import '../css/SPP.css'
 
@@ -28,6 +29,7 @@ class SPP extends Component {
                         hide={this.state.file}
                     />
                 </div>
+                <GraphBuilder/>
             </div>
         )
     }
