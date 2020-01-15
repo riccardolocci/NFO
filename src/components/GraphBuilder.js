@@ -44,7 +44,8 @@ const data = {
       {
         "source": 2,
         "target": 4,
-        "type": "emptyEdge"
+        "type": "emptyEdge",
+        handleText: '10; 5'
       }
     ]
   };
@@ -90,15 +91,9 @@ class GraphBuilder extends Component {
         }
     }
 
-    findByClass(e, cls) {
-        if (e.className.baseVal === cls) return e;
-        if (!e.children) return;
-        for(let el of e.children){
-            let res = this.findByClass(el ,cls);
-            if (res) return res
-        }
-
-        return;
+    setAttribute(c, aName, aValue, concat=true){
+        var attr = concat ? c.getAttribute(aName) : document.createAttribute(aName);
+        c.setAttribute(aName,  attr && concat ? attr + aValue : aValue);
     }
   
     render() {
@@ -126,9 +121,25 @@ class GraphBuilder extends Component {
                     onSwapEdge={() => {}}
                     onDeleteEdge={() => {}}
 
+                    edgeArrowSize={5}
+
                     afterRenderEdge={(id, element, edge, edgeContainer, isEdgeSelected) => {
-                        let comp = this.findByClass(edgeContainer, 'edge-path');
-                        comp.style.stroke = 'black';
+                        let comp = edgeContainer.querySelector('.edge');
+                        this.setAttribute(comp, 'style', 'stroke: black;', false);
+
+                        comp = document.querySelector('.arrow');
+                        this.setAttribute(comp, 'style', 'fill: black;', false);
+
+                        comp = edgeContainer.querySelector('.edge-text');
+
+                        let {x: x1, y: y1} = element.props.sourceNode;
+                        let {x: x2, y: y2} = element.props.targetNode;
+
+                        let tan = (y2 - y1)/(x2 - x1);
+                        let deg = Math.atan(tan)*180/Math.PI;;
+                        
+                        this.setAttribute(comp, 'transform', ` rotate(${deg}) translate(0, -15)`);
+                        this.setAttribute(comp, 'style', 'fill: black; stroke: black; stroke-width: 1px;', false);
                     }}
                 />
             </div>
