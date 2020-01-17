@@ -2,17 +2,44 @@
     height: 100%;
 }
 
-.SPP-contentOne {
-    height: 50%;
+.SPP-drop {
+    height: 30%;
     width: 80%;
     margin-left: auto;
     margin-right: auto;
 }
 
-.SPP-contentOneClosed {
+.SPP-dropClosed {
     height: 0;
     width: 80%;
     margin-left: auto;
     margin-right: auto;
     transition: 1s;
+}
+
+.SPP-paper {
+    background-color: rgb(200, 0, 0) !important;
+    color: white  !important;
+    margin-top: 50px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 20px;
+}
+
+.SPP-paperDiv {
+    padding: 15px 0 15px 0;
+    width: 100%;
+    transition: 0.2s;
+}
+    
+.SPP-paperDivHide {
+    height: 0;
+    width: 100%;
+    transition: 0.2s;
+    overflow: hidden;
+}
+
+.SPP-spacer {
+    height: 100px;
 }

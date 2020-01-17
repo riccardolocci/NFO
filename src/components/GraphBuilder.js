@@ -3,58 +3,58 @@ import { GraphView } from 'react-digraph';
 
 import '../css/GraphBuilder.css';
 
-const data = {
-    "nodes": [
-      {
-        "id": 1,
-        "title": "Node A",
-        x: Math.random() * 600, // "x": 258.3976135253906,
-        y: Math.random() * 600,// "y": 331.9783248901367,
-        "type": "empty"
-      },
-      {
-        "id": 2,
-        "title": "Node B",
-        x: Math.random() * 600, // "x": 593.9393920898438,
-        y: Math.random() * 600,// "y": 260.6060791015625,
-        "type": "empty"
-      },
-      {
-        "id": 3,
-        "title": "Node C",
-        x: Math.random() * 600, // "x": 237.5757598876953,
-        y: Math.random() * 600,// "y": 61.81818389892578,
-        "type": "custom"
-      },
-      {
-        "id": 4,
-        "title": "Node C",
-        x: Math.random() * 600, // "x": 600.5757598876953,
-        y: Math.random() * 600,// "y": 600.81818389892578,
-        "type": "custom"
-      }
-    ],
-    "edges": [
-      {
-        "source": 1,
-        "target": 2,
-        "type": "emptyEdge",
-        handleText: '5; 5',
-        cost: 3,
-        flow: 2,
-        capacity: 8
-      },
-      {
-        "source": 2,
-        "target": 4,
-        "type": "emptyEdge",
-        handleText: '10; 5',
-        cost: 5,
-        flow: 4,
-        capacity: 6
-      }
-    ]
-  };
+// const data = {
+//     nodes: [
+//       {
+//         id: 1,
+//         title: "Node A",
+//         x: Math.random() * 600, // "x": 258.3976135253906,
+//         y: Math.random() * 600,// "y": 331.9783248901367,
+//         type: "empty"
+//       },
+//       {
+//         id: 2,
+//         title: "Node B",
+//         x: Math.random() * 600, // "x": 593.9393920898438,
+//         y: Math.random() * 600,// "y": 260.6060791015625,
+//         type: "empty"
+//       },
+//       {
+//         id: 3,
+//         title: "Node C",
+//         x: Math.random() * 600, // "x": 237.5757598876953,
+//         y: Math.random() * 600,// "y": 61.81818389892578,
+//         type: "custom"
+//       },
+//       {
+//         id: 4,
+//         title: "Node C",
+//         x: Math.random() * 600, // "x": 600.5757598876953,
+//         y: Math.random() * 600,// "y": 600.81818389892578,
+//         type: "custom"
+//       }
+//     ],
+//     edges: [
+//       {
+//         source: 1,
+//         target: 2,
+//         type: "emptyEdge",
+//         handleText: '5; 5',
+//         cost: 3,
+//         flow: 2,
+//         capacity: 8
+//       },
+//       {
+//         source: 2,
+//         target: 4,
+//         type: "emptyEdge",
+//         handleText: '10; 5',
+//         cost: 5,
+//         flow: 4,
+//         capacity: 6
+//       }
+//     ]
+//   };
 
 const GraphConfig =  {
     NodeTypes: {
@@ -107,14 +107,14 @@ class GraphBuilder extends Component {
         const NodeSubtypes = GraphConfig.NodeSubtypes;
         const EdgeTypes = GraphConfig.EdgeTypes;
 
-        const { labelSize } = this.props;
+        const { labelSize, file } = this.props;
         
         return(
             <div className="GraphBuilder-root">
                 <GraphView  ref='GraphView'
                     nodeKey="id"
-                    nodes={data.nodes}
-                    edges={data.edges}
+                    nodes={file.nodes}
+                    edges={file.edges}
                     selected={this.state.selected}
                     nodeTypes={NodeTypes}
                     nodeSubtypes={NodeSubtypes}
