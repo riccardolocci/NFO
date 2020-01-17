@@ -29,7 +29,9 @@ class SPP extends Component {
                         hide={this.state.file}
                     />
                 </div>
-                <GraphBuilder/>
+                <GraphBuilder
+                    labelSize = {13}
+                />
             </div>
         )
     }

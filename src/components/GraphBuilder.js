@@ -39,13 +39,19 @@ const data = {
         "source": 1,
         "target": 2,
         "type": "emptyEdge",
-        handleText: '5; 5'
+        handleText: '5; 5',
+        cost: 3,
+        flow: 2,
+        capacity: 8
       },
       {
         "source": 2,
         "target": 4,
         "type": "emptyEdge",
-        handleText: '10; 5'
+        handleText: '10; 5',
+        cost: 5,
+        flow: 4,
+        capacity: 6
       }
     ]
   };
@@ -57,7 +63,7 @@ const GraphConfig =  {
             shapeId: "#empty", // relates to the type property of a node
             shape: (
                 <symbol viewBox="0 0 100 100" id="empty" key="0">
-                    <circle cx="50" cy="50" r="5" stroke="green" ></circle>
+                    <circle cx="50" cy="50" r="5" stroke="green" />
                 </symbol>
             )
         },
@@ -66,7 +72,7 @@ const GraphConfig =  {
             shapeId: "#custom", // relates to the type property of a node
             shape: (
                 <symbol viewBox="0 0 100 100" id="custom" key="0">
-                    <circle cx="50" cy="50" r="10" stroke="red"></circle>
+                    <circle cx="50" cy="50" r="10" stroke="red" />
                 </symbol>
             )
         }
@@ -76,7 +82,7 @@ const GraphConfig =  {
         emptyEdge: {  // required to show empty edges
             shapeId: "#emptyEdge",
             shape: (
-                <symbol viewBox="0 0 50 50" id="emptyEdge" key="0"></symbol>
+                <symbol viewBox="0 0 50 50" id="emptyEdge" key="0" />
             )
         }
     }
@@ -100,6 +106,8 @@ class GraphBuilder extends Component {
         const NodeTypes = GraphConfig.NodeTypes;
         const NodeSubtypes = GraphConfig.NodeSubtypes;
         const EdgeTypes = GraphConfig.EdgeTypes;
+
+        const { labelSize } = this.props;
         
         return(
             <div className="GraphBuilder-root">
@@ -124,22 +132,51 @@ class GraphBuilder extends Component {
                     edgeArrowSize={5}
 
                     afterRenderEdge={(id, element, edge, edgeContainer, isEdgeSelected) => {
+                        /***** Setting edge color *****/ 
+
                         let comp = edgeContainer.querySelector('.edge');
                         this.setAttribute(comp, 'style', 'stroke: black;', false);
+
+                        /***** Setting arrow end color *****/ 
 
                         comp = document.querySelector('.arrow');
                         this.setAttribute(comp, 'style', 'fill: black;', false);
 
                         comp = edgeContainer.querySelector('.edge-text');
 
+                        /***** Rotating labels according to edge slope *****/ 
+
                         let {x: x1, y: y1} = element.props.sourceNode;
                         let {x: x2, y: y2} = element.props.targetNode;
 
                         let tan = (y2 - y1)/(x2 - x1);
                         let deg = Math.atan(tan)*180/Math.PI;;
+
+                        this.setAttribute(comp, 'style', `fill: black; stroke: white; stroke-width: 0.5px; font-weight: bold; font-size: ${labelSize}`, false);
+                        this.setAttribute(comp, 'transform', ` rotate(${deg}) translate(0, -${labelSize})`);
+                        comp.innerHTML = edge.flow ? edge.flow : '';
+
+                        /***** Labels for costs and maximum capacity *****/ 
                         
-                        this.setAttribute(comp, 'transform', ` rotate(${deg}) translate(0, -15)`);
-                        this.setAttribute(comp, 'style', 'fill: black; stroke: black; stroke-width: 1px;', false);
+                        if(edge.cost){
+                            let costTag = comp.cloneNode(true);
+                            
+                            this.setAttribute(costTag, 'transform', ` translate(-${edge.capacity ? labelSize : 0}, ${labelSize*2})`);
+                            costTag.style.fill = 'red';
+                            costTag.innerHTML = edge.cost;
+                            
+                            comp.parentElement.appendChild(costTag);
+                        }
+                        
+                        if(edge.capacity){
+                            let capacityTag = comp.cloneNode(true);
+
+                            this.setAttribute(capacityTag, 'transform', ` translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`);
+                            capacityTag.style.fill = 'blue';
+                            capacityTag.innerHTML = edge.capacity;
+                            
+                            comp.parentElement.appendChild(capacityTag);
+                        }
                     }}
                 />
             </div>
