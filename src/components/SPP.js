@@ -9,7 +9,7 @@ class SPP extends Component {
     constructor(props){
         super(props)
         this.state = {
-            file: {nodes:[], edges: []},//null,
+            file: null,
             message: ''
         }
     }
