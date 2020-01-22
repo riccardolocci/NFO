@@ -9,7 +9,7 @@ class SPP extends Component {
     constructor(props){
         super(props)
         this.state = {
-            file: null,
+            file: {nodes:[], edges: []},//null,
             message: ''
         }
     }
@@ -36,6 +36,7 @@ class SPP extends Component {
                         validationMode="SPP"
                     />
                 </div>
+                
                 {!file && <div className="SPP-spacer">
                     <Paper className="SPP-paper">
                         <div className={message ? "SPP-paperDiv" : "SPP-paperDivHide"}>
@@ -43,9 +44,11 @@ class SPP extends Component {
                         </div>
                     </Paper>
                 </div>}
+                
                 {file && <GraphBuilder
                     labelSize = {13}
                     file={file}
+                    onReset={this.getFile}
                 />}
             </div>
         )

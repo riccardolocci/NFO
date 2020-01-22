@@ -1,8 +1,18 @@
 .GraphBuilder-root {
-    position: relative;
-    border: solid 1px;
     overflow: auto;
     width: 80%;
-    height: 500px;
+    height: 600px;
     margin: auto;
+}
+
+.GraphBuilder-button {
+    float: left;
+    margin-top: 10px !important;
+    border: 1px solid rgba(0,0,0,0.3) !important;
+}
+
+.GraphBuilder-graph {
+    position: relative;
+    height: calc(100% - 50px);
+    border: solid 1px;
 }

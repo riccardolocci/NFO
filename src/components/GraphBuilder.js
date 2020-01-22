@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { GraphView } from 'react-digraph';
+import { Button } from '@material-ui/core';
 
 import '../css/GraphBuilder.css';
 
@@ -111,74 +112,77 @@ class GraphBuilder extends Component {
         
         return(
             <div className="GraphBuilder-root">
-                <GraphView  ref='GraphView'
-                    nodeKey="id"
-                    nodes={file.nodes}
-                    edges={file.edges}
-                    selected={this.state.selected}
-                    nodeTypes={NodeTypes}
-                    nodeSubtypes={NodeSubtypes}
-                    edgeTypes={EdgeTypes}
-                    readOnly
-                    onSelectNode={() => {}}
-                    onCreateNode={() => {}}
-                    onUpdateNode={() => {}}
-                    onDeleteNode={() => {}}
-                    onSelectEdge={() => {}}
-                    onCreateEdge={() => {}}
-                    onSwapEdge={() => {}}
-                    onDeleteEdge={() => {}}
+                <div className="GraphBuilder-graph" >
+                    <GraphView  ref='GraphView'
+                        nodeKey="id"
+                        nodes={file.nodes}
+                        edges={file.edges}
+                        selected={this.state.selected}
+                        nodeTypes={NodeTypes}
+                        nodeSubtypes={NodeSubtypes}
+                        edgeTypes={EdgeTypes}
+                        readOnly
+                        onSelectNode={() => {}}
+                        onCreateNode={() => {}}
+                        onUpdateNode={() => {}}
+                        onDeleteNode={() => {}}
+                        onSelectEdge={() => {}}
+                        onCreateEdge={() => {}}
+                        onSwapEdge={() => {}}
+                        onDeleteEdge={() => {}}
 
-                    edgeArrowSize={5}
+                        edgeArrowSize={5}
 
-                    afterRenderEdge={(id, element, edge, edgeContainer, isEdgeSelected) => {
-                        /***** Setting edge color *****/ 
+                        afterRenderEdge={(id, element, edge, edgeContainer, isEdgeSelected) => {
+                            /***** Setting edge color *****/ 
 
-                        let comp = edgeContainer.querySelector('.edge');
-                        this.setAttribute(comp, 'style', 'stroke: black;', false);
+                            let comp = edgeContainer.querySelector('.edge');
+                            this.setAttribute(comp, 'style', 'stroke: black;', false);
 
-                        /***** Setting arrow end color *****/ 
+                            /***** Setting arrow end color *****/ 
 
-                        comp = document.querySelector('.arrow');
-                        this.setAttribute(comp, 'style', 'fill: black;', false);
+                            comp = document.querySelector('.arrow');
+                            this.setAttribute(comp, 'style', 'fill: black;', false);
 
-                        comp = edgeContainer.querySelector('.edge-text');
+                            comp = edgeContainer.querySelector('.edge-text');
 
-                        /***** Rotating labels according to edge slope *****/ 
+                            /***** Rotating labels according to edge slope *****/ 
 
-                        let {x: x1, y: y1} = element.props.sourceNode;
-                        let {x: x2, y: y2} = element.props.targetNode;
+                            let {x: x1, y: y1} = element.props.sourceNode;
+                            let {x: x2, y: y2} = element.props.targetNode;
 
-                        let tan = (y2 - y1)/(x2 - x1);
-                        let deg = Math.atan(tan)*180/Math.PI;;
+                            let tan = (y2 - y1)/(x2 - x1);
+                            let deg = Math.atan(tan)*180/Math.PI;;
 
-                        this.setAttribute(comp, 'style', `fill: black; stroke: white; stroke-width: 0.5px; font-weight: bold; font-size: ${labelSize}`, false);
-                        this.setAttribute(comp, 'transform', ` rotate(${deg}) translate(0, -${labelSize})`);
-                        comp.innerHTML = edge.flow ? edge.flow : '';
+                            this.setAttribute(comp, 'style', `fill: black; stroke: white; stroke-width: 0.5px; font-weight: bold; font-size: ${labelSize}`, false);
+                            this.setAttribute(comp, 'transform', ` rotate(${deg}) translate(0, -${labelSize})`);
+                            comp.innerHTML = edge.flow ? edge.flow : '';
 
-                        /***** Labels for costs and maximum capacity *****/ 
-                        
-                        if(edge.cost){
-                            let costTag = comp.cloneNode(true);
+                            /***** Labels for costs and maximum capacity *****/ 
                             
-                            this.setAttribute(costTag, 'transform', ` translate(-${edge.capacity ? labelSize : 0}, ${labelSize*2})`);
-                            costTag.style.fill = 'red';
-                            costTag.innerHTML = edge.cost;
+                            if(edge.cost){
+                                let costTag = comp.cloneNode(true);
+                                
+                                this.setAttribute(costTag, 'transform', ` translate(-${edge.capacity ? labelSize : 0}, ${labelSize*2})`);
+                                costTag.style.fill = 'red';
+                                costTag.innerHTML = edge.cost;
+                                
+                                comp.parentElement.appendChild(costTag);
+                            }
                             
-                            comp.parentElement.appendChild(costTag);
-                        }
-                        
-                        if(edge.capacity){
-                            let capacityTag = comp.cloneNode(true);
+                            if(edge.capacity){
+                                let capacityTag = comp.cloneNode(true);
 
-                            this.setAttribute(capacityTag, 'transform', ` translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`);
-                            capacityTag.style.fill = 'blue';
-                            capacityTag.innerHTML = edge.capacity;
-                            
-                            comp.parentElement.appendChild(capacityTag);
-                        }
-                    }}
-                />
+                                this.setAttribute(capacityTag, 'transform', ` translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`);
+                                capacityTag.style.fill = 'blue';
+                                capacityTag.innerHTML = edge.capacity;
+                                
+                                comp.parentElement.appendChild(capacityTag);
+                            }
+                        }}
+                    />
+                </div>
+                <Button className="GraphBuilder-button" onClick={(e) => this.props.onReset(null)}>RESET</Button>
             </div>
         ) 
     }
