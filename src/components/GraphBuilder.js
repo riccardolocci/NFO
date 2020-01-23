@@ -57,7 +57,8 @@ class GraphBuilder extends Component {
         super(props);
 
         this.state = {
-            selected: {}
+            selected: {},
+            engine: false
         }
     }
 
@@ -71,16 +72,14 @@ class GraphBuilder extends Component {
         const NodeSubtypes = GraphConfig.NodeSubtypes;
         const EdgeTypes = GraphConfig.EdgeTypes;
 
-        const { labelSize, file } = this.props;
-        
-        console.log('file', file)
+        var { labelSize, nodes, edges, layoutEngineType } = this.props;
 
         return(
             <div className="GraphBuilder-root">
                 <GraphView  ref='GraphView'
                     nodeKey="id"
-                    nodes={file.nodes}
-                    edges={file.edges}
+                    nodes={nodes}
+                    edges={edges}
                     selected={this.state.selected}
                     nodeTypes={NodeTypes}
                     nodeSubtypes={NodeSubtypes}
@@ -94,6 +93,8 @@ class GraphBuilder extends Component {
                     onCreateEdge={() => {}}
                     onSwapEdge={() => {}}
                     onDeleteEdge={() => {}}
+
+                    layoutEngineType={layoutEngineType}
 
                     edgeArrowSize={5}
 

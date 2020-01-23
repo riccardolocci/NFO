@@ -19,19 +19,19 @@ class SPP extends Component {
     getFile = (file) => this.setState({ file });
 
     onChange = (key) => (e) => {
-        var { file } = this.state;
+        var { file, engine } = this.state;
 
         for(let n of file.nodes){
             if(n.id === e.target.value.id){
                 n.type = key
-                n.title = 'START'
             }
             else if(n.type === key) n.type = 'empty';
         }
 
         this.setState({
             [key]: e.target.value,
-            file
+            file,
+            engine: !engine
         })
     }
 
@@ -42,7 +42,7 @@ class SPP extends Component {
     }
 
     render() {
-        const { file, message } = this.state;
+        const { file, message, engine } = this.state;
         
         return (
             <div className="SPP-root">
@@ -67,10 +67,14 @@ class SPP extends Component {
                 {file && <div className="SPP-graph">
                     <GraphBuilder
                         labelSize = {13}
-                        file={file}
+                        nodes={file.nodes}
+                        edges={file.edges}
+                        layoutEngineType={engine}
                     />
                     
-                    <div className="SPP-spacer"><Button className="SPP-button" onClick={(e) => this.setState({file: null, start_node: '', end_node: ''})}>RESET</Button></div>
+                    <div className="SPP-spacer">
+                        <Button className="SPP-button" onClick={(e) => this.setState({file: null, start_node: '', end_node: ''})}>RESET</Button>
+                    </div>
                     
                     <div className="SPP-spacer">
                         <TextField
