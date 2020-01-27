@@ -42,10 +42,13 @@ class SPP extends Component {
         setTimeout(() => this.setState({ message }), 5000);
     }
 
-    updateNode(nodes, pred, id, dist){
-        for(let el of nodes) if(el.id === id && el.distance > dist){
-            el.distance = dist
-            el.pred = pred
+    updateNode(nodes, pred, i, dist){
+        let el = nodes[i];
+        
+        // If distance < 0, node was never explored
+        if(el.distance < 0 || el.distance > dist){
+            el.distance = dist;
+            el.pred = pred;
         }
     }
 
@@ -54,21 +57,30 @@ class SPP extends Component {
 
         /** INITIALIZATION */
 
-        var current_node = start_node;
+        var current_node = start_node.id;
+        var next_steps = [];
+        var indexes = {};
 
-        for(let el of nodes){
-            el.distance = el.id === current_node.id ? 0 : -1;
+        for(let [i, el] of nodes.entries()){
+            el.distance = el.id === current_node ? 0 : -1;
+            delete el.pred;
+            indexes[el.id] = i;
         }
 
-        /** UPDATE */
+        while(current_node){
+            /** UPDATE */
 
-        for(let el of edges){
-            if(el.source === current_node.id){
-                this.updateNode(nodes, el.source, el.target, el.cost ? el.cost : 1 + current_node.distance)
+            for(let el of edges){
+                if(el.source === current_node){
+                    if(el.target !== end_node.id) next_steps.push(el.target);
+                    this.updateNode(nodes, el.source, indexes[el.target], el.cost ? el.cost : 1 + nodes[indexes[current_node]].distance);
+                }
             }
+
+            current_node = next_steps.shift();
         }
 
-        this.setState({engine: !engine})
+        this.setState({file:{nodes, edges}, engine: !engine})
     }
 
     render() {

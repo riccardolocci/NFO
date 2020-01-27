@@ -104,7 +104,7 @@ class GraphBuilder extends Component {
                     nodeTypes={NodeTypes}
                     nodeSubtypes={NodeSubtypes}
                     edgeTypes={EdgeTypes}
-                    readOnly
+                    // readOnly
                     onSelectNode={() => {}}
                     onCreateNode={() => {}}
                     onUpdateNode={() => {}}
@@ -119,9 +119,9 @@ class GraphBuilder extends Component {
                     edgeArrowSize={5}
 
                     renderNodeText={(data, id, isSelected) => {
-                        return <text class="node-text" text-anchor="middle">
-                            <tspan x="0" dy="18" font-size="10px">{data.title}</tspan>
-                            <tspan fill="red" fontWeight="bold" x="0" dy="18" font-size="10px">{'distance' in data ? data.distance < 0 ? '∞' : data.distance : ''}</tspan>
+                        return <text className="node-text" textAnchor="middle">
+                            <tspan x="0" dy="18" fontSize="10px">{data.title}</tspan>
+                            <tspan fill="red" fontWeight="bold" x="0" dy="15" fontSize="10px">{'distance' in data ? data.distance < 0 ? '∞' : data.distance : ''}</tspan>
                             <title>{data.title}</title>
                         </text>
                     }}
@@ -137,7 +137,9 @@ class GraphBuilder extends Component {
                         comp = document.querySelector('.arrow');
                         this.setAttribute(comp, 'style', 'fill: black;', false);
 
-                        comp = edgeContainer.querySelector('.edge-text');
+                        //Because at first there is only one element, but then it would create 2 new elements per render
+                        let comp_list = edgeContainer.querySelectorAll('.edge-text');
+                        comp = comp_list[0]; 
 
                         /***** Rotating labels according to edge slope *****/ 
 
@@ -153,25 +155,42 @@ class GraphBuilder extends Component {
 
                         /***** Labels for costs and maximum capacity *****/ 
                         
-                        if(edge.cost){
+                        if(edge.cost && comp_list.length === 1){
                             let costTag = comp.cloneNode(true);
                             
                             this.setAttribute(costTag, 'transform', ` translate(-${edge.capacity ? labelSize : 0}, ${labelSize*2})`);
+                            costTag.id = "cost-tag";
                             costTag.style.fill = 'red';
                             costTag.innerHTML = edge.cost;
                             
                             comp.parentElement.appendChild(costTag);
                         }
+                        else if(comp_list[1] && comp_list[1].id === 'cost-tag'){
+                                let transform = comp_list[0].getAttribute('transform');
+                                this.setAttribute(comp_list[1], 'transform', `${transform} translate(-${edge.capacity ? labelSize : 0}, ${labelSize*2})`, false);
+                        }
                         
-                        if(edge.capacity){
+                        if(edge.capacity && comp_list.length === 1){
                             let capacityTag = comp.cloneNode(true);
 
                             this.setAttribute(capacityTag, 'transform', ` translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`);
+                            capacityTag.id = "capacity-tag";
                             capacityTag.style.fill = 'blue';
                             capacityTag.innerHTML = edge.capacity;
                             
                             comp.parentElement.appendChild(capacityTag);
                         }
+                        else {
+                            let transform = comp_list[0].getAttribute('transform');
+                            if(comp_list[1] && comp_list[1].id === 'capacity-tag'){
+                                this.setAttribute(comp_list[1], 'transform', `${transform} translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`, false);
+                            }
+                            else if(comp_list[2] && comp_list[2].id === 'capacity-tag'){
+                                this.setAttribute(comp_list[2], 'transform', `${transform} translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`, false);
+                            }
+                        }
+
+                        console.log('After')
                     }}
                 />
             </div>
