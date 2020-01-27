@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Dropzone from './Dropzone';
 import GraphBuilder from './GraphBuilder';
 import { Button, MenuItem, OutlinedInput, Paper, TextField } from '@material-ui/core';
+import { PlayArrow } from '@material-ui/icons';
 
 import '../css/SPP.css'
 
@@ -9,7 +10,7 @@ class SPP extends Component {
     constructor(props){
         super(props)
         this.state = {
-            file: null,
+            file: {"nodes":[{"id":1,"title":"Node A","x":261.3662526072377,"y":380.4085763646997,"type":"empty"},{"id":2,"title":"Node B","x":48.797954180041046,"y":495.6765459517936,"type":"empty"},{"id":3,"title":"Node C","x":530.6759939811406,"y":471.05519601885425,"type":"empty"},{"id":4,"title":"Node D","x":46.537057671810174,"y":419.07888034272423,"type":"empty"}],"edges":[{"source":1,"target":2,"type":"emptyEdge","handleText":"."},{"source":2,"target":4,"type":"emptyEdge","handleText":"."},{"source":4,"target":3,"type":"emptyEdge","handleText":"."}]},
             message: '',
             start_node: '',
             end_node: ''
@@ -41,8 +42,37 @@ class SPP extends Component {
         setTimeout(() => this.setState({ message }), 5000);
     }
 
+    updateNode(nodes, pred, id, dist){
+        for(let el of nodes) if(el.id === id && el.distance > dist){
+            el.distance = dist
+            el.pred = pred
+        }
+    }
+
+    launchAlgorithm(name = 'dijkstra'){
+        var { file: { nodes, edges }, start_node, end_node, engine } = this.state;
+
+        /** INITIALIZATION */
+
+        var current_node = start_node;
+
+        for(let el of nodes){
+            el.distance = el.id === current_node.id ? 0 : -1;
+        }
+
+        /** UPDATE */
+
+        for(let el of edges){
+            if(el.source === current_node.id){
+                this.updateNode(nodes, el.source, el.target, el.cost ? el.cost : 1 + current_node.distance)
+            }
+        }
+
+        this.setState({engine: !engine})
+    }
+
     render() {
-        const { file, message, engine } = this.state;
+        const { file, message, engine, start_node, end_node } = this.state;
         
         return (
             <div className="SPP-root">
@@ -106,6 +136,10 @@ class SPP extends Component {
                                 <MenuItem key={e.id} value={e}>{e.title}</MenuItem>
                             ))}
                         </TextField>
+
+                        <Button disabled={!start_node || !end_node} className="SPP-button" onClick={() => this.launchAlgorithm()}>
+                            <PlayArrow/>
+                        </Button>
                     </div>
                 </div>}
             </div>

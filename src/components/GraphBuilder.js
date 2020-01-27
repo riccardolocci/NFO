@@ -18,7 +18,7 @@ const GraphConfig =  {
         start_node: {
             shapeId: "#start_node", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="start_node" key="0">
+                <symbol viewBox="0 0 100 100" id="start_node" key="1">
                     <circle cx="50" cy="50" r="5" stroke="orange" strokeWidth="2"/>
                 </symbol>
             )
@@ -26,17 +26,25 @@ const GraphConfig =  {
         end_node: {
             shapeId: "#end_node", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="end_node" key="0">
+                <symbol viewBox="0 0 100 100" id="end_node" key="2">
                     <circle cx="50" cy="50" r="5" stroke="green" strokeWidth="2"/>
                 </symbol>
             )
         },
-        custom: {
-            // typeText: "Custom",
-            shapeId: "#custom", // relates to the type property of a node
+        path_node: {
+            shapeId: "#path_node", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="custom" key="0">
-                    <circle cx="50" cy="50" r="10" stroke="red" />
+                <symbol viewBox="0 0 100 100" id="path_node" key="2">
+                    <circle cx="50" cy="50" r="5" stroke="yellow" strokeWidth="2"/>
+                </symbol>
+            )
+        },
+        visited: {
+            // typeText: "visited",
+            shapeId: "#visited", // relates to the type property of a node
+            shape: (
+                <symbol viewBox="0 0 100 100" id="visited" key="3">
+                    <circle cx="50" cy="50" r="10" stroke="blue" strokeWidth="2"/>
                 </symbol>
             )
         }
@@ -46,7 +54,19 @@ const GraphConfig =  {
         emptyEdge: {  // required to show empty edges
             shapeId: "#emptyEdge",
             shape: (
-                <symbol viewBox="0 0 50 50" id="emptyEdge" key="0" />
+                <symbol viewBox="0 0 50 50" id="emptyEdge" key="0"/>
+            )
+        },
+        pathEdge: {  // required to show empty edges
+            shapeId: "#visitedEdge",
+            shape: (
+                <symbol viewBox="0 0 50 50" id="visitedEdge" key="1" />
+            )
+        },
+        visitedEdge: {  // required to show empty edges
+            shapeId: "#visitedEdge",
+            shape: (
+                <symbol viewBox="0 0 50 50" id="visitedEdge" key="2" />
             )
         }
     }
@@ -97,6 +117,14 @@ class GraphBuilder extends Component {
                     layoutEngineType={layoutEngineType}
 
                     edgeArrowSize={5}
+
+                    renderNodeText={(data, id, isSelected) => {
+                        return <text class="node-text" text-anchor="middle">
+                            <tspan x="0" dy="18" font-size="10px">{data.title}</tspan>
+                            <tspan fill="red" fontWeight="bold" x="0" dy="18" font-size="10px">{'distance' in data ? data.distance < 0 ? '∞' : data.distance : ''}</tspan>
+                            <title>{data.title}</title>
+                        </text>
+                    }}
 
                     afterRenderEdge={(id, element, edge, edgeContainer, isEdgeSelected) => {
                         /***** Setting edge color *****/ 
