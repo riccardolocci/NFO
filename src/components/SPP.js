@@ -6,14 +6,16 @@ import { PlayArrow } from '@material-ui/icons';
 
 import '../css/SPP.css'
 
+// var d3 = require('d3-force');
+
 class SPP extends Component {
     constructor(props){
         super(props)
         this.state = {
             file: {"nodes":[{"id":1,"title":"Node A","x":261.3662526072377,"y":380.4085763646997,"type":"empty"},{"id":2,"title":"Node B","x":48.797954180041046,"y":495.6765459517936,"type":"empty"},{"id":3,"title":"Node C","x":530.6759939811406,"y":471.05519601885425,"type":"empty"},{"id":4,"title":"Node D","x":46.537057671810174,"y":419.07888034272423,"type":"empty"}],"edges":[{"source":1,"target":2,"type":"emptyEdge","handleText":"."},{"source":2,"target":4,"type":"emptyEdge","handleText":"."},{"source":4,"target":3,"type":"emptyEdge","handleText":"."}]},
             message: '',
-            start_node: '',
-            end_node: ''
+            startNode: '',
+            endNode: ''
         }
     }
 
@@ -44,6 +46,8 @@ class SPP extends Component {
 
     updateNode(nodes, pred, i, dist){
         let el = nodes[i];
+
+        if(el.type === 'empty') el.type = 'visitedNode';
         
         // If distance < 0, node was never explored
         if(el.distance < 0 || el.distance > dist){
@@ -53,38 +57,58 @@ class SPP extends Component {
     }
 
     launchAlgorithm(name = 'dijkstra'){
-        var { file: { nodes, edges }, start_node, end_node, engine } = this.state;
+        var { file: { nodes, edges }, startNode, endNode, engine } = this.state;
 
         /** INITIALIZATION */
 
-        var current_node = start_node.id;
+        var currentNode = startNode.id;
         var next_steps = [];
         var indexes = {};
 
         for(let [i, el] of nodes.entries()){
-            el.distance = el.id === current_node ? 0 : -1;
+            el.distance = el.id === currentNode ? 0 : -1;
+            if(!['startNode', 'endNode'].includes(el.type)) el.type = 'empty';
             delete el.pred;
             indexes[el.id] = i;
         }
 
-        while(current_node){
+        for(let el of edges){
+            el.type = 'emptyEdge';
+        }
+
+        while(currentNode){
             /** UPDATE */
 
             for(let el of edges){
-                if(el.source === current_node){
-                    if(el.target !== end_node.id) next_steps.push(el.target);
-                    this.updateNode(nodes, el.source, indexes[el.target], el.cost ? el.cost : 1 + nodes[indexes[current_node]].distance);
+                if(el.source === currentNode){
+                    el.type = 'visitedEdge';
+                    if(el.target !== endNode.id) next_steps.push(el.target);
+                    var { distance } = nodes[indexes[currentNode]]
+                    this.updateNode(nodes, el.source, indexes[el.target], (el.cost ? el.cost : 1) + distance);
                 }
             }
 
-            current_node = next_steps.shift();
+            currentNode = next_steps.shift();
         }
+
+        currentNode = endNode;
+
+        var path = []
+
+        while(currentNode.id !== startNode.id){
+            if(currentNode.type === 'visitedNode') currentNode.type = 'pathNode';
+            path.push({source: currentNode.pred, target: currentNode.id});
+
+            currentNode = nodes[indexes[currentNode.pred]]
+        }
+
+        for(let el of edges) if(path.some(e => e.source === el.source && e.target === el.target)) el.type = 'pathEdge';
 
         this.setState({file:{nodes, edges}, engine: !engine})
     }
 
     render() {
-        const { file, message, engine, start_node, end_node } = this.state;
+        const { file, message, engine, startNode, endNode } = this.state;
         
         return (
             <div className="SPP-root">
@@ -115,7 +139,7 @@ class SPP extends Component {
                     />
                     
                     <div className="SPP-spacer">
-                        <Button className="SPP-button" onClick={(e) => this.setState({file: null, start_node: '', end_node: ''})}>RESET</Button>
+                        <Button className="SPP-button" onClick={(e) => this.setState({file: null, startNode: '', endNode: ''})}>RESET</Button>
                     </div>
                     
                     <div className="SPP-spacer">
@@ -123,8 +147,8 @@ class SPP extends Component {
                             select
                             className="SPP-select"
                             label="Start Node"
-                            value={this.state.start_node}
-                            onChange={this.onChange('start_node')}
+                            value={this.state.startNode}
+                            onChange={this.onChange('startNode')}
                             margin="normal"
                             input={<OutlinedInput/>}
                         >
@@ -138,8 +162,8 @@ class SPP extends Component {
                             select
                             className="SPP-select"
                             label="End Node"
-                            value={this.state.end_node}
-                            onChange={this.onChange('end_node')}
+                            value={this.state.endNode}
+                            onChange={this.onChange('endNode')}
                             margin="normal"
                             input={<OutlinedInput/>}
                         >
@@ -149,7 +173,7 @@ class SPP extends Component {
                             ))}
                         </TextField>
 
-                        <Button disabled={!start_node || !end_node} className="SPP-button" onClick={() => this.launchAlgorithm()}>
+                        <Button disabled={!startNode || !endNode} className="SPP-button" onClick={() => this.launchAlgorithm()}>
                             <PlayArrow/>
                         </Button>
                     </div>

@@ -15,36 +15,45 @@ const GraphConfig =  {
                 </symbol>
             )
         },
-        start_node: {
-            shapeId: "#start_node", // relates to the type property of a node
+        startNode: {
+            shapeId: "#startNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="start_node" key="1">
+                <symbol viewBox="0 0 100 100" id="startNode" key="1">
                     <circle cx="50" cy="50" r="5" stroke="orange" strokeWidth="2"/>
                 </symbol>
             )
         },
-        end_node: {
-            shapeId: "#end_node", // relates to the type property of a node
+        endNode: {
+            shapeId: "#endNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="end_node" key="2">
+                <symbol viewBox="0 0 100 100" id="endNode" key="2">
                     <circle cx="50" cy="50" r="5" stroke="green" strokeWidth="2"/>
                 </symbol>
             )
         },
-        path_node: {
-            shapeId: "#path_node", // relates to the type property of a node
+        currentNode: {
+            // typeText: "currentNode",
+            shapeId: "#currentNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="path_node" key="2">
-                    <circle cx="50" cy="50" r="5" stroke="yellow" strokeWidth="2"/>
+                <symbol viewBox="0 0 100 100" id="currentNode" key="3">
+                    <circle cx="50" cy="50" r="5" stroke="red" strokeWidth="2"/>
                 </symbol>
             )
         },
-        visited: {
-            // typeText: "visited",
-            shapeId: "#visited", // relates to the type property of a node
+        pathNode: {
+            shapeId: "#pathNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="visited" key="3">
-                    <circle cx="50" cy="50" r="10" stroke="blue" strokeWidth="2"/>
+                <symbol viewBox="0 0 100 100" id="pathNode" key="2">
+                    <circle cx="50" cy="50" r="5" stroke="blue" strokeWidth="2"/>
+                </symbol>
+            )
+        },
+        visitedNode: {
+            // typeText: "visitedNode",
+            shapeId: "#visitedNode", // relates to the type property of a node
+            shape: (
+                <symbol viewBox="0 0 100 100" id="visitedNode" key="3">
+                    <circle cx="50" cy="50" r="5" stroke="yellow" strokeWidth="2"/>
                 </symbol>
             )
         }
@@ -55,19 +64,22 @@ const GraphConfig =  {
             shapeId: "#emptyEdge",
             shape: (
                 <symbol viewBox="0 0 50 50" id="emptyEdge" key="0"/>
-            )
+            ),
+            color: 'black'
         },
         pathEdge: {  // required to show empty edges
-            shapeId: "#visitedEdge",
+            shapeId: "#pathEdge",
             shape: (
-                <symbol viewBox="0 0 50 50" id="visitedEdge" key="1" />
-            )
+                <symbol viewBox="0 0 50 50" id="pathEdge" key="1" />
+            ),
+            color: 'blue'
         },
         visitedEdge: {  // required to show empty edges
             shapeId: "#visitedEdge",
             shape: (
                 <symbol viewBox="0 0 50 50" id="visitedEdge" key="2" />
-            )
+            ),
+            color: 'yellow'
         }
     }
 }
@@ -105,14 +117,16 @@ class GraphBuilder extends Component {
                     nodeSubtypes={NodeSubtypes}
                     edgeTypes={EdgeTypes}
                     // readOnly
-                    onSelectNode={() => {}}
+                    onSelectNode={(e) => {}}
                     onCreateNode={() => {}}
                     onUpdateNode={() => {}}
                     onDeleteNode={() => {}}
                     onSelectEdge={() => {}}
                     onCreateEdge={() => {}}
-                    onSwapEdge={() => {}}
+                    onSwapEdge={(e) => {}}
                     onDeleteEdge={() => {}}
+
+                    onBackgroundClick={() => {}}
 
                     layoutEngineType={layoutEngineType}
 
@@ -127,15 +141,16 @@ class GraphBuilder extends Component {
                     }}
 
                     afterRenderEdge={(id, element, edge, edgeContainer, isEdgeSelected) => {
+                        var edgeColor = EdgeTypes[edge.type].color;
                         /***** Setting edge color *****/ 
 
                         let comp = edgeContainer.querySelector('.edge');
-                        this.setAttribute(comp, 'style', 'stroke: black;', false);
+                        this.setAttribute(comp, 'style', `stroke: ${edgeColor};`, false);
 
                         /***** Setting arrow end color *****/ 
 
                         comp = document.querySelector('.arrow');
-                        this.setAttribute(comp, 'style', 'fill: black;', false);
+                        this.setAttribute(comp, 'style',  `fill: ${edgeColor};`, false);
 
                         //Because at first there is only one element, but then it would create 2 new elements per render
                         let comp_list = edgeContainer.querySelectorAll('.edge-text');
@@ -146,11 +161,13 @@ class GraphBuilder extends Component {
                         let {x: x1, y: y1} = element.props.sourceNode;
                         let {x: x2, y: y2} = element.props.targetNode;
 
+                        let x = (x1+x2)/2, y = (y1+y2)/2;
+
                         let tan = (y2 - y1)/(x2 - x1);
                         let deg = Math.atan(tan)*180/Math.PI;;
 
-                        this.setAttribute(comp, 'style', `fill: black; stroke: white; stroke-width: 0.5px; font-weight: bold; font-size: ${labelSize}`, false);
-                        this.setAttribute(comp, 'transform', ` rotate(${deg}) translate(0, -${labelSize})`);
+                        this.setAttribute(comp, 'style', `fill: ${edgeColor}; stroke: white; stroke-width: 0.5px; font-weight: bold; font-size: ${labelSize}`, false);
+                        this.setAttribute(comp, 'transform', `translate(${x}, ${y}) rotate(${deg}) translate(0, -${labelSize})`, false);
                         comp.innerHTML = edge.flow ? edge.flow : '';
 
                         /***** Labels for costs and maximum capacity *****/ 
@@ -189,8 +206,6 @@ class GraphBuilder extends Component {
                                 this.setAttribute(comp_list[2], 'transform', `${transform} translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`, false);
                             }
                         }
-
-                        console.log('After')
                     }}
                 />
             </div>
