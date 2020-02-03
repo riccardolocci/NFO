@@ -15,11 +15,20 @@ class SPP extends Component {
             file: {"nodes":[{"id":1,"title":"Node A","x":261.3662526072377,"y":380.4085763646997,"type":"empty"},{"id":2,"title":"Node B","x":48.797954180041046,"y":495.6765459517936,"type":"empty"},{"id":3,"title":"Node C","x":530.6759939811406,"y":471.05519601885425,"type":"empty"},{"id":4,"title":"Node D","x":46.537057671810174,"y":419.07888034272423,"type":"empty"}],"edges":[{"source":1,"target":2,"type":"emptyEdge","handleText":"."},{"source":2,"target":4,"type":"emptyEdge","handleText":"."},{"source":4,"target":3,"type":"emptyEdge","handleText":"."}]},
             message: '',
             startNode: '',
-            endNode: ''
+            endNode: '',
+            indexes: {1: 0, 2: 1, 3:2, 4:3}
         }
     }
 
-    getFile = (file) => this.setState({ file });
+    getFile = (file) => {
+        var indexes = {};
+
+        for(let [i, el] of file.nodes.entries()){
+            indexes[el.id] = i;
+        }
+
+        this.setState({ file, indexes });
+    }
 
     onChange = (key) => (e) => {
         var { file, engine } = this.state;
@@ -44,6 +53,17 @@ class SPP extends Component {
         setTimeout(() => this.setState({ message }), 5000);
     }
 
+    moveNode = (n, e) => {
+        if(!n) return;
+        
+        var { file, indexes } = this.state;
+
+        var i = indexes[n.id]; 
+
+        file.nodes[i].x = e.x;
+        file.nodes[i].y = e.y;
+    }
+
     updateNode(nodes, pred, i, dist){
         let el = nodes[i];
 
@@ -57,19 +77,17 @@ class SPP extends Component {
     }
 
     launchAlgorithm(name = 'dijkstra'){
-        var { file: { nodes, edges }, startNode, endNode, engine } = this.state;
+        var { file: { nodes, edges }, startNode, endNode, engine, indexes } = this.state;
 
         /** INITIALIZATION */
 
         var currentNode = startNode.id;
         var next_steps = [];
-        var indexes = {};
 
-        for(let [i, el] of nodes.entries()){
+        for(let el of nodes){
             el.distance = el.id === currentNode ? 0 : -1;
             if(!['startNode', 'endNode'].includes(el.type)) el.type = 'empty';
             delete el.pred;
-            indexes[el.id] = i;
         }
 
         for(let el of edges){
@@ -99,6 +117,7 @@ class SPP extends Component {
             if(currentNode.type === 'visitedNode') currentNode.type = 'pathNode';
             path.push({source: currentNode.pred, target: currentNode.id});
 
+            if(!currentNode.pred) break;
             currentNode = nodes[indexes[currentNode.pred]]
         }
 
@@ -136,6 +155,8 @@ class SPP extends Component {
                         nodes={file.nodes}
                         edges={file.edges}
                         layoutEngineType={engine}
+                        onSelectNode={this.moveNode}
+                        moveNode={this.moveNode}
                     />
                     
                     <div className="SPP-spacer">

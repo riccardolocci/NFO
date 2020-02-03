@@ -79,19 +79,23 @@ const GraphConfig =  {
             shape: (
                 <symbol viewBox="0 0 50 50" id="visitedEdge" key="2" />
             ),
-            color: 'yellow'
+            color: '#c9c900'
         }
     }
 }
+
+const ARROW_SIZE = 5;
 
 class GraphBuilder extends Component {
     constructor(props){
         super(props);
 
         this.state = {
-            selected: {},
+            selected: null,
             engine: false
         }
+
+        this.moveNode = this.props.moveNode;
     }
 
     setAttribute(c, aName, aValue, concat=true){
@@ -116,21 +120,44 @@ class GraphBuilder extends Component {
                     nodeTypes={NodeTypes}
                     nodeSubtypes={NodeSubtypes}
                     edgeTypes={EdgeTypes}
-                    // readOnly
-                    onSelectNode={(e) => {}}
+                    readOnly
+                    onSelectNode={(e) => e === this.state.selected ? this.setState({selected: null}) : this.setState({selected: e})}
                     onCreateNode={() => {}}
                     onUpdateNode={() => {}}
                     onDeleteNode={() => {}}
                     onSelectEdge={() => {}}
                     onCreateEdge={() => {}}
-                    onSwapEdge={(e) => {}}
+                    onSwapEdge={() => {}}
                     onDeleteEdge={() => {}}
+                    canCreateEdge={() => {}}
 
-                    onBackgroundClick={() => {}}
+                    onBackgroundClick={(x, y) => this.moveNode(this.state.selected, {x,y})}
 
                     layoutEngineType={layoutEngineType}
 
-                    edgeArrowSize={5}
+                    edgeArrowSize={ARROW_SIZE}
+
+                    renderDefs={() => {
+                        return Object.entries(EdgeTypes).map((o) => {
+                            let k=o[0], v=o[1];
+
+                            return <marker
+                                id={`end-arrow-${k}`}
+                                key={`end-arrow-${k}`}
+                                viewBox={`0 -${ARROW_SIZE / 2} ${ARROW_SIZE} ${ARROW_SIZE}`}
+                                refX={`${ARROW_SIZE / 2}`}
+                                markerWidth={`${ARROW_SIZE}`}
+                                markerHeight={`${ARROW_SIZE}`}
+                                orient="auto"
+                            >
+                                <path
+                                    className="arrow"
+                                    d={`M0,-${ARROW_SIZE / 2}L${ARROW_SIZE},0L0,${ARROW_SIZE / 2}`}
+                                    style={{fill: v.color}}
+                                />
+                            </marker>
+                        })
+                    }}
 
                     renderNodeText={(data, id, isSelected) => {
                         return <text className="node-text" textAnchor="middle">
@@ -141,12 +168,14 @@ class GraphBuilder extends Component {
                     }}
 
                     afterRenderEdge={(id, element, edge, edgeContainer, isEdgeSelected) => {
-                        var edgeColor = EdgeTypes[edge.type].color;
+                        
+                        var edgeColor = EdgeTypes[edge.type ? edge.type : 'emptyEdge'].color;
                         /***** Setting edge color *****/ 
-
+                        
                         let comp = edgeContainer.querySelector('.edge');
-                        this.setAttribute(comp, 'style', `stroke: ${edgeColor};`, false);
+                        if(!comp) return;
 
+                        this.setAttribute(comp, 'style', `stroke: ${edgeColor};  marker-end: url(#end-arrow-${edge.type})`, false);
                         /***** Setting arrow end color *****/ 
 
                         comp = document.querySelector('.arrow');
@@ -154,6 +183,10 @@ class GraphBuilder extends Component {
 
                         //Because at first there is only one element, but then it would create 2 new elements per render
                         let comp_list = edgeContainer.querySelectorAll('.edge-text');
+
+                        //When edge is moving ".edge-text" elements do not exist
+                        if(!comp_list.length) return;
+
                         comp = comp_list[0]; 
 
                         /***** Rotating labels according to edge slope *****/ 
@@ -206,6 +239,7 @@ class GraphBuilder extends Component {
                                 this.setAttribute(comp_list[2], 'transform', `${transform} translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`, false);
                             }
                         }
+                        
                     }}
                 />
             </div>
