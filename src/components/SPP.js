@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import Dropzone from './Dropzone';
 import GraphBuilder from './GraphBuilder';
-import { Button, MenuItem, OutlinedInput, Paper, TextField } from '@material-ui/core';
-import { PlayArrow } from '@material-ui/icons';
+import { Button, ButtonGroup, MenuItem, OutlinedInput, Paper, TextField } from '@material-ui/core';
+import { PlayArrow, KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons';
 
 import '../css/SPP.css'
 
@@ -14,9 +14,22 @@ class SPP extends Component {
         this.state = {
             file: {"nodes":[{"id":1,"title":"Node A","x":261.3662526072377,"y":380.4085763646997,"type":"empty"},{"id":2,"title":"Node B","x":48.797954180041046,"y":495.6765459517936,"type":"empty"},{"id":3,"title":"Node C","x":530.6759939811406,"y":471.05519601885425,"type":"empty"},{"id":4,"title":"Node D","x":46.537057671810174,"y":419.07888034272423,"type":"empty"}],"edges":[{"source":1,"target":2,"type":"emptyEdge","handleText":"."},{"source":2,"target":4,"type":"emptyEdge","handleText":"."},{"source":4,"target":3,"type":"emptyEdge","handleText":"."}]},
             message: '',
+            currentNode: '',
             startNode: '',
             endNode: '',
-            indexes: {1: 0, 2: 1, 3:2, 4:3}
+            indexes: {1: 0, 2: 1, 3:2, 4:3},
+            phase: 0,
+            step: 0,
+            nextSteps: [],
+            disableNext: false,
+            disablePrev: true,
+            phases: [{
+                name: 'Initialization'
+            },{
+                name: 'Processing'
+            },{
+                name: 'Conclusion'
+            }]
         }
     }
 
@@ -77,57 +90,58 @@ class SPP extends Component {
     }
 
     launchAlgorithm(name = 'dijkstra'){
-        var { file: { nodes, edges }, startNode, endNode, engine, indexes } = this.state;
+        var { file: { nodes, edges }, currentNode, startNode, endNode, engine, indexes, nextSteps, phase, step, disableNext } = this.state;
 
-        /** INITIALIZATION */
+        var algorithm = require(`../algorithms/${name}`);
 
-        var currentNode = startNode.id;
-        var next_steps = [];
+        switch(phase){
+            case 0:
+                currentNode = startNode;
+                currentNode.prevType = currentNode.type
+                currentNode.type = 'currentNode';
 
-        for(let el of nodes){
-            el.distance = el.id === currentNode ? 0 : -1;
-            if(!['startNode', 'endNode'].includes(el.type)) el.type = 'empty';
-            delete el.pred;
-        }
+                algorithm.preprocess(nodes, edges, currentNode);
+                phase++;
+                this.setState({ file:{nodes, edges}, phase, currentNode, engine: !engine });
+                break;
+            case 1:
+                algorithm.process(nodes, edges, currentNode, endNode, nextSteps, indexes, this.updateNode);
+                currentNode.type = currentNode.prevType;
+                delete currentNode.prevType;
+                
+                currentNode = nextSteps[step++];
+                
+                if(!currentNode){
+                    phase++;
+                    step = 0;
 
-        for(let el of edges){
-            el.type = 'emptyEdge';
-        }
-
-        while(currentNode){
-            /** UPDATE */
-
-            for(let el of edges){
-                if(el.source === currentNode){
-                    el.type = 'visitedEdge';
-                    if(el.target !== endNode.id) next_steps.push(el.target);
-                    var { distance } = nodes[indexes[currentNode]]
-                    this.updateNode(nodes, el.source, indexes[el.target], (el.cost ? el.cost : 1) + distance);
+                    currentNode = endNode;
+                    currentNode.prevType = currentNode.type;
+                    currentNode.type = 'currentNode';
                 }
-            }
+                else{
+                    currentNode.prevType = currentNode.type;
+                    currentNode.type = 'currentNode';
+                }
 
-            currentNode = next_steps.shift();
+                this.setState({ file:{nodes, edges}, currentNode, nextSteps, phase, step, engine: !engine });
+                break;
+            case 2:
+                currentNode = algorithm.postprocess(nodes, edges, currentNode, indexes);
+                currentNode.prevType = currentNode.type;
+                currentNode.type = 'currentNode';
+
+                disableNext = currentNode.id === startNode.id;
+
+                this.setState({ file:{nodes, edges}, currentNode, phase, step, engine: !engine, disableNext });
+                break;
+            default:
+                break;
         }
-
-        currentNode = endNode;
-
-        var path = []
-
-        while(currentNode.id !== startNode.id){
-            if(currentNode.type === 'visitedNode') currentNode.type = 'pathNode';
-            path.push({source: currentNode.pred, target: currentNode.id});
-
-            if(!currentNode.pred) break;
-            currentNode = nodes[indexes[currentNode.pred]]
-        }
-
-        for(let el of edges) if(path.some(e => e.source === el.source && e.target === el.target)) el.type = 'pathEdge';
-
-        this.setState({file:{nodes, edges}, engine: !engine})
     }
 
     render() {
-        const { file, message, engine, startNode, endNode } = this.state;
+        const { file, message, engine, startNode, endNode, disableNext, disablePrev } = this.state;
         
         return (
             <div className="SPP-root">
@@ -161,6 +175,16 @@ class SPP extends Component {
                     
                     <div className="SPP-spacer">
                         <Button className="SPP-button" onClick={(e) => this.setState({file: null, startNode: '', endNode: ''})}>RESET</Button>
+
+                        <ButtonGroup className="SPP-buttonRight">
+                            <Button onClick={() => {}} disabled={disablePrev}>
+                                <KeyboardArrowLeft/>
+                            </Button>
+
+                            <Button onClick={() => this.launchAlgorithm()} disabled={disableNext}>
+                                <KeyboardArrowRight/>
+                            </Button>
+                        </ButtonGroup>
                     </div>
                     
                     <div className="SPP-spacer">
