@@ -1,7 +1,7 @@
 export function preprocess(nodes, edges, currentNode){
     for(let el of nodes){
         el.distance = el.id === currentNode.id ? 0 : -1;
-        if(!['startNode', 'endNode'].includes(el.type)) el.type = 'empty';
+        if(!['startNode', 'endNode', 'currentNode'].includes(el.type)) el.type = 'empty';
         delete el.pred;
     }
 

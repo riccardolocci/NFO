@@ -10,24 +10,24 @@ const GraphConfig =  {
             // typeText: "None",
             shapeId: "#empty", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="empty" key="0">
-                    <circle cx="50" cy="50" r="5" stroke="grey" />
+                <symbol viewBox="0 0 150 150" id="empty" key="0">
+                    <circle cx="75" cy="75" r="15" stroke="grey" />
                 </symbol>
             )
         },
         startNode: {
             shapeId: "#startNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="startNode" key="1">
-                    <circle cx="50" cy="50" r="5" stroke="orange" strokeWidth="2"/>
+                <symbol viewBox="0 0 150 150" id="startNode" key="1">
+                    <circle cx="75" cy="75" r="15" stroke="orange" strokeWidth="2"/>
                 </symbol>
             )
         },
         endNode: {
             shapeId: "#endNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="endNode" key="2">
-                    <circle cx="50" cy="50" r="5" stroke="green" strokeWidth="2"/>
+                <symbol viewBox="0 0 150 150" id="endNode" key="2">
+                    <circle cx="75" cy="75" r="15" stroke="green" strokeWidth="2"/>
                 </symbol>
             )
         },
@@ -35,16 +35,16 @@ const GraphConfig =  {
             // typeText: "currentNode",
             shapeId: "#currentNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="currentNode" key="3">
-                    <circle cx="50" cy="50" r="5" stroke="red" strokeWidth="2"/>
+                <symbol viewBox="0 0 150 150" id="currentNode" key="3">
+                    <circle cx="75" cy="75" r="15" stroke="red" strokeWidth="2"/>
                 </symbol>
             )
         },
         pathNode: {
             shapeId: "#pathNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="pathNode" key="2">
-                    <circle cx="50" cy="50" r="5" stroke="blue" strokeWidth="2"/>
+                <symbol viewBox="0 0 150 150" id="pathNode" key="4">
+                    <circle cx="75" cy="75" r="15" stroke="blue" strokeWidth="2"/>
                 </symbol>
             )
         },
@@ -52,8 +52,8 @@ const GraphConfig =  {
             // typeText: "visitedNode",
             shapeId: "#visitedNode", // relates to the type property of a node
             shape: (
-                <symbol viewBox="0 0 100 100" id="visitedNode" key="3">
-                    <circle cx="50" cy="50" r="5" stroke="yellow" strokeWidth="2"/>
+                <symbol viewBox="0 0 150 150" id="visitedNode" key="5">
+                    <circle cx="75" cy="75" r="15" stroke="yellow" strokeWidth="2"/>
                 </symbol>
             )
         }
@@ -80,6 +80,13 @@ const GraphConfig =  {
                 <symbol viewBox="0 0 50 50" id="visitedEdge" key="2" />
             ),
             color: '#c9c900'
+        },
+        currentEdge: {
+            shapeId: "#currentEdge",
+            shape: (
+                <symbol viewBox="0 0 50 50" id="currentEdge" key="3"/>
+            ),
+            color: 'red'
         }
     }
 }
@@ -91,8 +98,7 @@ class GraphBuilder extends Component {
         super(props);
 
         this.state = {
-            selected: null,
-            engine: false
+            selected: null
         }
 
         this.moveNode = this.props.moveNode;
@@ -109,6 +115,8 @@ class GraphBuilder extends Component {
         const EdgeTypes = GraphConfig.EdgeTypes;
 
         var { labelSize, nodes, edges, layoutEngineType } = this.props;
+
+        layoutEngineType = layoutEngineType ? null : false;
 
         return(
             <div className="GraphBuilder-root">
@@ -160,14 +168,15 @@ class GraphBuilder extends Component {
                     }}
 
                     renderNodeText={(data, id, isSelected) => {
-                        return <text className="node-text" textAnchor="middle">
-                            <tspan x="0" dy="18" fontSize="10px">{data.title}</tspan>
-                            <tspan fill="red" fontWeight="bold" x="0" dy="15" fontSize="10px">{'distance' in data ? data.distance < 0 ? '∞' : data.distance : ''}</tspan>
+                        return <text className="node-text" textAnchor="middle" color="white">
+                            <tspan x="0" dy="3" fontSize="7px">{data.title}</tspan>
+                            <tspan fill="red" stroke="white" stroke-width="0.3" fontWeight="bold" x="0" dy="25" fontSize="10px">{'distance' in data ? data.distance < 0 ? '∞' : data.distance : ''}</tspan>
                             <title>{data.title}</title>
                         </text>
                     }}
 
                     afterRenderEdge={(id, element, edge, edgeContainer, isEdgeSelected) => {
+                        edgeContainer.parentNode.insertBefore( edgeContainer, edgeContainer.parentNode.firstChild);
                         
                         var edgeColor = EdgeTypes[edge.type ? edge.type : 'emptyEdge'].color;
                         /***** Setting edge color *****/ 

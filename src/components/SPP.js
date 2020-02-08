@@ -56,7 +56,13 @@ class SPP extends Component {
         this.setState({
             [key]: e.target.value,
             file,
-            engine: !engine
+            engine: !engine, 
+            currentNode: '',
+            phase: 0, 
+            step: 0, 
+            nextSteps: [], 
+            disableNext: false, 
+            disablePrev: true
         })
     }
 
@@ -97,7 +103,7 @@ class SPP extends Component {
         switch(phase){
             case 0:
                 currentNode = startNode;
-                currentNode.prevType = currentNode.type
+                currentNode.prevType = currentNode.type;
                 currentNode.type = 'currentNode';
 
                 algorithm.preprocess(nodes, edges, currentNode);
@@ -174,7 +180,7 @@ class SPP extends Component {
                     />
                     
                     <div className="SPP-spacer">
-                        <Button className="SPP-button" onClick={(e) => this.setState({file: null, startNode: '', endNode: ''})}>RESET</Button>
+                        <Button className="SPP-button" onClick={(e) => this.setState({file: null, currentNode: '', startNode: '', endNode: '', phase: 0, step: 0, nextSteps: [], disableNext: false, disablePrev: true})}>RESET</Button>
 
                         <ButtonGroup className="SPP-buttonRight">
                             <Button onClick={() => {}} disabled={disablePrev}>
