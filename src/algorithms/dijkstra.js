@@ -10,15 +10,15 @@ export function preprocess(nodes, edges, currentNode){
     }
 }
 
-export function process(nodes, edges, currentNode, endNode, nextSteps, indexes, updateNode){
-    for(let el of edges){
-        if(el.source === currentNode.id){
-            el.type = 'visitedEdge';
-            if(el.target !== endNode.id) nextSteps.push(nodes[indexes[el.target]]);
+export function process(nodes, edge, currentNode, endNode, nextSteps, indexes, updateNode){
+    // for(let el of edges){
+    //     if(el.source === currentNode.id){
+            edge.type = 'visitedEdge';
+            if(edge.target !== endNode.id && nodes[indexes[edge.target]].type !== 'visitedNode') nextSteps.push(nodes[indexes[edge.target]]);
             var { distance } = nodes[indexes[currentNode.id]]
-            updateNode(nodes, el.source, indexes[el.target], (el.cost ? el.cost : 1) + distance);
-        }
-    }
+            updateNode(nodes, edge.source, indexes[edge.target], (edge.cost ? edge.cost : 1) + distance);
+    //     }
+    // }
 }
 
 export function postprocess(nodes, edges, currentNode, indexes){

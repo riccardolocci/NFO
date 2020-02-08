@@ -20,6 +20,7 @@ class SPP extends Component {
             indexes: {1: 0, 2: 1, 3:2, 4:3},
             phase: 0,
             step: 0,
+            substep: 0,
             nextSteps: [],
             disableNext: false,
             disablePrev: true,
@@ -60,6 +61,7 @@ class SPP extends Component {
             currentNode: '',
             phase: 0, 
             step: 0, 
+            substep: 0, 
             nextSteps: [], 
             disableNext: false, 
             disablePrev: true
@@ -96,7 +98,7 @@ class SPP extends Component {
     }
 
     launchAlgorithm(name = 'dijkstra'){
-        var { file: { nodes, edges }, currentNode, startNode, endNode, engine, indexes, nextSteps, phase, step, disableNext } = this.state;
+        var { file: { nodes, edges }, currentNode, startNode, endNode, engine, indexes, nextSteps, phase, step, substep, disableNext } = this.state;
 
         var algorithm = require(`../algorithms/${name}`);
 
@@ -111,26 +113,60 @@ class SPP extends Component {
                 this.setState({ file:{nodes, edges}, phase, currentNode, engine: !engine });
                 break;
             case 1:
-                algorithm.process(nodes, edges, currentNode, endNode, nextSteps, indexes, this.updateNode);
-                currentNode.type = currentNode.prevType;
-                delete currentNode.prevType;
-                
-                currentNode = nextSteps[step++];
-                
-                if(!currentNode){
-                    phase++;
-                    step = 0;
+                if(step === 0 && substep === 0){
+                    for(let [i, el] of edges.entries()){
+                        let node =  nodes[indexes[el.source]];
+                        
+                        if(!node.leavingStar) node.leavingStar = [];
 
-                    currentNode = endNode;
-                    currentNode.prevType = currentNode.type;
-                    currentNode.type = 'currentNode';
+                        node.leavingStar.push(i);
+                    }
+                }
+                
+                if(substep < currentNode.leavingStar.length){
+                    if(substep > 0){
+                        let idx = currentNode.leavingStar[substep-1]
+                        edges[idx].type = edges[idx].prevType;
+                        delete edges[idx].prevType;
+                    }
+                    
+                    let idx = currentNode.leavingStar[substep]
+
+                    algorithm.process(nodes, edges[idx], currentNode, endNode, nextSteps, indexes, this.updateNode);
+                    
+                    edges[idx].prevType = edges[idx].type;
+                    edges[idx].type = 'currentEdge';
+
+                    substep++;
                 }
                 else{
-                    currentNode.prevType = currentNode.type;
-                    currentNode.type = 'currentNode';
+                    if(substep > 0){
+                        let idx = currentNode.leavingStar[substep-1]
+                        edges[idx].type = edges[idx].prevType;
+                        delete edges[idx].prevType;
+                    }
+
+                    currentNode.type = currentNode.prevType;
+                    delete currentNode.prevType;
+                    
+                    currentNode = nextSteps[step++];
+                    substep = 0;
+                    
+                    if(!currentNode){
+                        phase++;
+                        step = 0;
+
+                        currentNode = endNode;
+                        currentNode.prevType = currentNode.type;
+                        currentNode.type = 'currentNode';
+                    }
+                    else{
+                        currentNode.prevType = currentNode.type;
+                        currentNode.type = 'currentNode';
+                    }
                 }
 
-                this.setState({ file:{nodes, edges}, currentNode, nextSteps, phase, step, engine: !engine });
+                this.setState({ file:{nodes, edges}, currentNode, nextSteps, phase, step, substep, engine: !engine });
                 break;
             case 2:
                 currentNode = algorithm.postprocess(nodes, edges, currentNode, indexes);
@@ -180,7 +216,7 @@ class SPP extends Component {
                     />
                     
                     <div className="SPP-spacer">
-                        <Button className="SPP-button" onClick={(e) => this.setState({file: null, currentNode: '', startNode: '', endNode: '', phase: 0, step: 0, nextSteps: [], disableNext: false, disablePrev: true})}>RESET</Button>
+                        <Button className="SPP-button" onClick={(e) => this.setState({file: null, currentNode: '', startNode: '', endNode: '', phase: 0, step: 0, substep: 0, nextSteps: [], disableNext: false, disablePrev: true})}>RESET</Button>
 
                         <ButtonGroup className="SPP-buttonRight">
                             <Button onClick={() => {}} disabled={disablePrev}>

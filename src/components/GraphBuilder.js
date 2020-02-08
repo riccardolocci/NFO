@@ -170,7 +170,7 @@ class GraphBuilder extends Component {
                     renderNodeText={(data, id, isSelected) => {
                         return <text className="node-text" textAnchor="middle" color="white">
                             <tspan x="0" dy="3" fontSize="7px">{data.title}</tspan>
-                            <tspan fill="red" stroke="white" stroke-width="0.3" fontWeight="bold" x="0" dy="25" fontSize="10px">{'distance' in data ? data.distance < 0 ? '∞' : data.distance : ''}</tspan>
+                            <tspan fill="red" stroke="white" strokeWidth="0.3" fontWeight="bold" x="0" dy="25" fontSize="10px">{'distance' in data ? data.distance < 0 ? '∞' : data.distance : ''}</tspan>
                             <title>{data.title}</title>
                         </text>
                     }}
