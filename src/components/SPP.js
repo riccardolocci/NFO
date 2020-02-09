@@ -12,24 +12,21 @@ class SPP extends Component {
     constructor(props){
         super(props)
         this.state = {
-            file: {"nodes":[{"id":1,"title":"Node A","x":261.3662526072377,"y":380.4085763646997,"type":"empty"},{"id":2,"title":"Node B","x":48.797954180041046,"y":495.6765459517936,"type":"empty"},{"id":3,"title":"Node C","x":530.6759939811406,"y":471.05519601885425,"type":"empty"},{"id":4,"title":"Node D","x":46.537057671810174,"y":419.07888034272423,"type":"empty"}],"edges":[{"source":1,"target":2,"type":"emptyEdge","handleText":"."},{"source":2,"target":4,"type":"emptyEdge","handleText":"."},{"source":4,"target":3,"type":"emptyEdge","handleText":"."}]},
             message: '',
-            currentNode: '',
             startNode: '',
             endNode: '',
             indexes: {1: 0, 2: 1, 3:2, 4:3},
-            phase: 0,
-            step: 0,
-            substep: 0,
             nextSteps: [],
-            disableNext: false,
+            disableNext: true,
             disablePrev: true,
-            phases: [{
-                name: 'Initialization'
-            },{
-                name: 'Processing'
-            },{
-                name: 'Conclusion'
+            endIndex: null,
+            stateIndex: 0,
+            states: [{
+                phase: 0,
+                step: 0,
+                substep: 0,
+                currentNode: null,
+                file: {"nodes":[{"id":1,"title":"Node A","x":261.3662526072377,"y":380.4085763646997,"type":"empty"},{"id":2,"title":"Node B","x":48.797954180041046,"y":495.6765459517936,"type":"empty"},{"id":3,"title":"Node C","x":530.6759939811406,"y":471.05519601885425,"type":"empty"},{"id":4,"title":"Node D","x":46.537057671810174,"y":419.07888034272423,"type":"empty"}],"edges":[{"source":1,"target":2,"type":"emptyEdge","handleText":"."},{"source":2,"target":4,"type":"emptyEdge","handleText":"."},{"source":4,"target":3,"type":"emptyEdge","handleText":"."}]},
             }]
         }
     }
@@ -41,29 +38,38 @@ class SPP extends Component {
             indexes[el.id] = i;
         }
 
-        this.setState({ file, indexes });
+        var { states } = this.state;
+        states.push({phase: 0, step: 0, substep: 0, currentNode: null, file});
+
+        this.setState({ states, indexes });
     }
 
-    onChange = (key) => (e) => {
-        var { file, engine } = this.state;
+    onReset = () => this.setState({states: [], indexes: {}, stateIndex: 0, startNode: '', endNode: '', endIndex: null, nextSteps: [], disableNext: true, disablePrev: true});
 
-        for(let n of file.nodes){
-            if(n.id === e.target.value.id){
+    onChange = (key) => (e) => {
+        var { states, engine, stateIndex } = this.state;
+
+        states.splice(1, states.length - 1);
+        stateIndex = 0;
+
+        for(let n of states[stateIndex].file.nodes){
+            if(n.id === e.target.value){
                 n.type = key
             }
             else if(n.type === key) n.type = 'empty';
         }
 
+        for(let n of states[stateIndex].file.edges) n.type = 'emptyEdge';
+        states[stateIndex].currentNode = null
+
         this.setState({
             [key]: e.target.value,
-            file,
+            states,
+            stateIndex,
             engine: !engine, 
-            currentNode: '',
-            phase: 0, 
-            step: 0, 
-            substep: 0, 
             nextSteps: [], 
-            disableNext: false, 
+            endIndex: null,
+            disableNext: true, 
             disablePrev: true
         })
     }
@@ -77,12 +83,14 @@ class SPP extends Component {
     moveNode = (n, e) => {
         if(!n) return;
         
-        var { file, indexes } = this.state;
+        var { states, indexes } = this.state;
 
         var i = indexes[n.id]; 
 
-        file.nodes[i].x = e.x;
-        file.nodes[i].y = e.y;
+        for(let s of states){
+            s.file.nodes[i].x = e.x;
+            s.file.nodes[i].y = e.y;
+        }
     }
 
     updateNode(nodes, pred, i, dist){
@@ -97,23 +105,62 @@ class SPP extends Component {
         }
     }
 
+    nextStep = () => {
+        let { states, stateIndex, engine, disablePrev } = this.state;
+
+        disablePrev = stateIndex === 0;
+
+        if(states[++stateIndex]){
+            this.setState({ stateIndex, disablePrev, engine: !engine});
+        }
+        else{
+            this.launchAlgorithm();
+        }
+    }
+
+    prevStep = () => {
+        let { states, stateIndex, startNode, disableNext, disablePrev, engine } = this.state;
+
+        stateIndex--;
+        disablePrev = stateIndex === 0;
+        disableNext = states[stateIndex].currentNode === startNode;
+        
+        this.setState({ stateIndex, disablePrev, disableNext, engine: !engine });
+    }
+
     launchAlgorithm(name = 'dijkstra'){
-        var { file: { nodes, edges }, currentNode, startNode, endNode, engine, indexes, nextSteps, phase, step, substep, disableNext } = this.state;
+        var { states, stateIndex, startNode, endNode, engine, indexes, nextSteps, disableNext, disablePrev } = this.state;
+
+        var {file: {nodes, edges}, currentNode, phase, step, substep} = states[stateIndex];
 
         var algorithm = require(`../algorithms/${name}`);
 
         switch(phase){
             case 0:
+                disablePrev = !phase && !step && !substep;
+
+                disableNext = currentNode === startNode;
+
                 currentNode = startNode;
-                currentNode.prevType = currentNode.type;
-                currentNode.type = 'currentNode';
+                nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type
+                nodes[indexes[currentNode]].type = 'currentNode';
 
                 algorithm.preprocess(nodes, edges, currentNode);
-                phase++;
-                this.setState({ file:{nodes, edges}, phase, currentNode, engine: !engine });
+
+                let newState = JSON.parse(JSON.stringify(states[stateIndex]));
+
+                newState.currentNode = currentNode;
+                newState.phase++;
+                states.push(newState);
+
+                stateIndex++;
+                
+                this.setState({ states, stateIndex, disableNext, disablePrev, engine: !engine });
                 break;
             case 1:
                 if(step === 0 && substep === 0){
+                    disablePrev = !phase && !step && !substep;
+
                     for(let [i, el] of edges.entries()){
                         let node =  nodes[indexes[el.source]];
                         
@@ -123,59 +170,92 @@ class SPP extends Component {
                     }
                 }
                 
-                if(substep < currentNode.leavingStar.length){
+                if(nodes[indexes[currentNode]].leavingStar && substep < nodes[indexes[currentNode]].leavingStar.length){
                     if(substep > 0){
-                        let idx = currentNode.leavingStar[substep-1]
+                        let idx = nodes[indexes[currentNode]].leavingStar[substep-1]
                         edges[idx].type = edges[idx].prevType;
                         delete edges[idx].prevType;
                     }
                     
-                    let idx = currentNode.leavingStar[substep]
+                    let idx = nodes[indexes[currentNode]].leavingStar[substep]
 
                     algorithm.process(nodes, edges[idx], currentNode, endNode, nextSteps, indexes, this.updateNode);
-                    
+
                     edges[idx].prevType = edges[idx].type;
                     edges[idx].type = 'currentEdge';
 
-                    substep++;
+                    let newState = JSON.parse(JSON.stringify(states[stateIndex]));
+
+                    newState.substep++;
+                    states.push(newState);
                 }
                 else{
                     if(substep > 0){
-                        let idx = currentNode.leavingStar[substep-1]
+                        let idx = nodes[indexes[currentNode]].leavingStar[substep-1]
                         edges[idx].type = edges[idx].prevType;
                         delete edges[idx].prevType;
                     }
 
-                    currentNode.type = currentNode.prevType;
-                    delete currentNode.prevType;
-                    
-                    currentNode = nextSteps[step++];
-                    substep = 0;
-                    
+                    nodes[indexes[currentNode]].type = nodes[indexes[currentNode]].prevType;
+                    delete nodes[indexes[currentNode]].prevType;
+
+                    currentNode = nextSteps[step];
+
+                    let newState = null;
+
                     if(!currentNode){
                         phase++;
                         step = 0;
 
                         currentNode = endNode;
-                        currentNode.prevType = currentNode.type;
-                        currentNode.type = 'currentNode';
+                        nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type;
+                        nodes[indexes[currentNode]].type = 'currentNode';
+                        
+                        newState = JSON.parse(JSON.stringify(states[stateIndex]));
+                        newState.phase++;
+                        newState.step = 0;
+                        newState.substep = 0;
                     }
                     else{
-                        currentNode.prevType = currentNode.type;
-                        currentNode.type = 'currentNode';
+                        nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type;
+                        nodes[indexes[currentNode]].type = 'currentNode';
+                        
+                        newState = JSON.parse(JSON.stringify(states[stateIndex]));
+                        newState.substep = 0;
+                        newState.step++;
                     }
+
+                    newState.currentNode = currentNode;
+
+                    states.push(newState);
                 }
 
-                this.setState({ file:{nodes, edges}, currentNode, nextSteps, phase, step, substep, engine: !engine });
+                stateIndex++;
+
+                this.setState({ states, stateIndex, disablePrev, nextSteps, engine: !engine });
                 break;
             case 2:
-                currentNode = algorithm.postprocess(nodes, edges, currentNode, indexes);
-                currentNode.prevType = currentNode.type;
-                currentNode.type = 'currentNode';
+                currentNode = algorithm.postprocess(edges, nodes[indexes[currentNode]]);
+                nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type;
+                nodes[indexes[currentNode]].type = 'currentNode';
 
-                disableNext = currentNode.id === startNode.id;
+                disableNext = currentNode === startNode;
 
-                this.setState({ file:{nodes, edges}, currentNode, phase, step, engine: !engine, disableNext });
+                if(!disableNext){
+                    let newState = JSON.parse(JSON.stringify(states[stateIndex]))
+                    
+                    newState.step++;
+                    newState.currentNode = currentNode;
+
+                    stateIndex++;
+
+                    states.push(newState);
+                    this.setState({  states, stateIndex, engine: !engine, disableNext });
+                }
+                else{
+                    this.setState({  states, engine: !engine, disableNext, endIndex: stateIndex });
+                }
+
                 break;
             default:
                 break;
@@ -183,15 +263,16 @@ class SPP extends Component {
     }
 
     render() {
-        const { file, message, engine, startNode, endNode, disableNext, disablePrev } = this.state;
+        const { states, stateIndex, message, engine, startNode, endNode, endIndex, disableNext, disablePrev } = this.state;
+        const file = states[stateIndex] ? states[stateIndex].file : null;
         
         return (
             <div className="SPP-root">
                 <div><h1>SPP</h1></div>
-                <div className={this.state.file ? "SPP-dropClosed" : "SPP-drop"}>
+                <div className={file ? "SPP-dropClosed" : "SPP-drop"}>
                     <Dropzone
                         getFile={this.getFile}
-                        hide={this.state.file}
+                        hide={file}
                         showMessage={this.showMessage}
                         validationMode="SPP"
                     />
@@ -216,14 +297,14 @@ class SPP extends Component {
                     />
                     
                     <div className="SPP-spacer">
-                        <Button className="SPP-button" onClick={(e) => this.setState({file: null, currentNode: '', startNode: '', endNode: '', phase: 0, step: 0, substep: 0, nextSteps: [], disableNext: false, disablePrev: true})}>RESET</Button>
+                        <Button className="SPP-button" onClick={() => this.onReset()}>RESET</Button>
 
                         <ButtonGroup className="SPP-buttonRight">
-                            <Button onClick={() => {}} disabled={disablePrev}>
+                            <Button onClick={() => this.prevStep()} disabled={disablePrev}>
                                 <KeyboardArrowLeft/>
                             </Button>
 
-                            <Button onClick={() => this.launchAlgorithm()} disabled={disableNext}>
+                            <Button onClick={() => this.nextStep()} disabled={disableNext || stateIndex === endIndex}>
                                 <KeyboardArrowRight/>
                             </Button>
                         </ButtonGroup>
@@ -234,14 +315,14 @@ class SPP extends Component {
                             select
                             className="SPP-select"
                             label="Start Node"
-                            value={this.state.startNode}
+                            value={startNode}
                             onChange={this.onChange('startNode')}
                             margin="normal"
                             input={<OutlinedInput/>}
                         >
                             <MenuItem key={'empty'} value='' />
                             {file.nodes.map(e => (
-                                <MenuItem key={e.id} value={e}>{e.title}</MenuItem>
+                                <MenuItem key={e.id} value={e.id}>{e.title}</MenuItem>
                             ))}
                         </TextField>
 
@@ -249,14 +330,14 @@ class SPP extends Component {
                             select
                             className="SPP-select"
                             label="End Node"
-                            value={this.state.endNode}
+                            value={endNode}
                             onChange={this.onChange('endNode')}
                             margin="normal"
                             input={<OutlinedInput/>}
                         >
                             <MenuItem key={'empty'} value='' />
                             {file.nodes.map(e => (
-                                <MenuItem key={e.id} value={e}>{e.title}</MenuItem>
+                                <MenuItem key={e.id} value={e.id}>{e.title}</MenuItem>
                             ))}
                         </TextField>
 
@@ -264,6 +345,10 @@ class SPP extends Component {
                             <PlayArrow/>
                         </Button>
                     </div>
+                    Index: {stateIndex} <br/>
+                    Phase: {states[stateIndex].phase} <br/>
+                    Step: {states[stateIndex].step} <br/>
+                    Substep: {states[stateIndex].substep}
                 </div>}
             </div>
         )
