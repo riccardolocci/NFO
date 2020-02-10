@@ -2,8 +2,8 @@
 
 ## Environment
 
-NodeJS: v12.14.1
-NPM: 6.13.4
+- NodeJS: v12.14.1
+- NPM: 6.13.4
 
 ## Installation
 
