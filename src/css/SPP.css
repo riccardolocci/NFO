@@ -33,6 +33,15 @@
     margin: auto;
 }
 
+.SPP-infoBox {
+    text-align: left;
+    width: 25%;
+}
+
+.SPP-infoBox table {
+    width: 100%;
+}
+
 .SPP-paper {
     background-color: rgb(200, 0, 0) !important;
     color: white  !important;
