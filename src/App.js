@@ -8,7 +8,7 @@ import SPP from './components/SPP';
 import MFP from './components/MFP';
 import MCFP from './components/MCFP';
 
-import { HashRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 
 class App extends Component {
@@ -29,7 +29,7 @@ class App extends Component {
     return (
       <div className="App">
         <div>
-          <Router basename="/NFO">
+          <Router>
             <div className="App-root">
               <NavBar onClick={() => this.toggleDrawer()}></NavBar>
               <main className="App-container">
