@@ -29,7 +29,7 @@ class App extends Component {
     return (
       <div className="App">
         <div>
-          <Router>
+          <Router basename="/NFO">
             <div className="App-root">
               <NavBar onClick={() => this.toggleDrawer()}></NavBar>
               <main className="App-container">

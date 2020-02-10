@@ -11,7 +11,7 @@
 
 ## Build
 
-`npm build`
+`npm run-script build`
 
 ## Start local
 

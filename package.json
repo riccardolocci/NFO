@@ -21,6 +21,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "homepage" : "http://riccardolocci.github.io/NFO",
   "eslintConfig": {
     "extends": "react-app"
   },
