@@ -78,3 +78,8 @@
 .SPP-spacer {
     height: 80px;
 }
+
+.SPP-switch {
+    float: left;
+    padding: 20px 20px 0 0;
+}
