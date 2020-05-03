@@ -1,6 +1,6 @@
 {
-  "name": "project",
-  "version": "0.1.0",
+  "name": "nfo-project-2020",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.6.1",
@@ -22,6 +22,11 @@
     "eject": "react-scripts eject"
   },
   "homepage" : "http://riccardolocci.github.io/NFO",
+  "author":{ 
+    "name" : "Riccardo Locci", 
+    "email" : "riccardo.locci.95@gmail.com", 
+    "url" : "https://github.com/riccardolocci"
+  },
   "eslintConfig": {
     "extends": "react-app"
   },
