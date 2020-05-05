@@ -35,7 +35,8 @@
 
 .SPP-infoBox {
     text-align: left;
-    width: 25%;
+    width: 50%;
+    display: inline-block;
 }
 
 .SPP-infoBox table {
@@ -65,6 +66,14 @@
     overflow: hidden;
 }
 
+.SPP-paths tbody td{
+    padding: 2px;
+}
+
+.SPP-paths tbody tr:nth-child(odd):not(.SPP-sourceRow):not(.SPP-selectedRow){
+    background-color: rgb(235, 241, 250);
+}
+
 .SPP-root {
     height: 100%;
 }
@@ -75,6 +84,27 @@
     margin: 0 50px 0 0 !important;
 }
 
+.SPP-selectableRow {
+    cursor: pointer;
+}
+
+.SPP-selectedRow {
+    background-color: rgb(148, 235, 153);
+}
+
+.SPP-sourceRow {
+    background-color: rgb(250, 240, 217);
+}
+
 .SPP-spacer {
     height: 80px;
+}
+
+.SPP-switch {
+    float: left;
+    padding: 20px 20px 0 0;
+}
+
+.SPP-unselectableRow {
+    cursor: not-allowed;
 }
