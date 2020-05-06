@@ -10,6 +10,12 @@
     border: 1px solid rgba(0,0,0,0.3) !important;
 }
 
+.SPP-colorPicker {
+    position: absolute;
+    top: 50px;
+    z-index: 1;
+}
+
 .SPP-drop {
     height: 50%;
     width: 80%;
@@ -45,9 +51,9 @@
 
 .SPP-legend {
     display: inline-block;
-    height: 20px;
-    margin: 15px 10px;
-    width: 100px;
+    height: 30px;
+    margin: 15px 10px 0 0;
+    width: 120px;
     text-align: initial;
 }
 
@@ -56,14 +62,25 @@
     border-radius: 10px;
     height: 20px;
     width: 20px;
-    margin: 0 10px 0 0;
+    margin: 5px 10px;
 }
  
 .SPP-legendKey {
     float: left;
     height: 20px;
-    margin: 0;
+    width: 70px;
+    margin: 5px 0;
     font-size: 15px;
+}
+
+.SPP-legendPicked {
+    display: inline-block;
+    height: 30px;
+    margin: 15px 10px 0 0;
+    width: 120px;
+    text-align: initial;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.1);
 }
 
 .SPP-paper {
@@ -120,6 +137,7 @@
 }
 
 .SPP-spacer {
+    position: relative;
     height: 80px;
 }
 

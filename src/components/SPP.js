@@ -3,6 +3,8 @@ import Dropzone from './Dropzone';
 import GraphBuilder from './GraphBuilder';
 import { Button, ButtonGroup, FormControlLabel, MenuItem, OutlinedInput, Paper, Switch, TextField } from '@material-ui/core';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons';
+import { SketchPicker } from 'react-color';
+
 
 import '../css/SPP.css'
 
@@ -14,6 +16,7 @@ class SPP extends Component {
     constructor(props){
         super(props)
         this.state = {
+            colorPicker: '',
             colors: {
                 current: 'red',
                 'not visited': 'black',
@@ -53,6 +56,15 @@ class SPP extends Component {
     }
 
     onReset = () => this.setState({
+        colorPicker: '',
+        colors: {
+            current: 'red',
+            'not visited': 'black',
+            end: 'green',
+            path: 'blue',
+            start: 'orange',
+            visited: '#c9c900'
+        },
         disableNext: true,
         endIndex: false,
         endNode: '',
@@ -390,8 +402,12 @@ class SPP extends Component {
         this.setState({ engine: !engine, selectedPath, states });
     }
 
+    setColor = k => v => { let { colors, engine } = this.state; colors[k] = v.hex;  this.setState({ colors, engine: !engine }); }
+
+    showPicker = (prev, next) => this.setState({colorPicker: prev===next ? '' : next})
+
     render() {
-        const { colors, disableNext, finished, states, stateIndex, message, engine, selectedPath, startNode, endNode, targetAll} = this.state;
+        const { colorPicker, colors, disableNext, finished, states, stateIndex, message, engine, selectedPath, startNode, endNode, targetAll} = this.state;
         const file = states[stateIndex] ? states[stateIndex].file : null;
 
         const shortestPaths = this.getPaths(file);
@@ -434,9 +450,10 @@ class SPP extends Component {
                             const v = colors[k]
 
                             return (
-                                <div key={k} className="SPP-legend">
+                                <div key={k} className={colorPicker===k ? "SPP-legendPicked" : "SPP-legend"} onClick={() => this.showPicker(colorPicker, k)}>
                                     <div style={{backgroundColor: v}} className="SPP-legendColor"/>
                                     <p className="SPP-legendKey">{k}</p>
+                                    {colorPicker===k && <SketchPicker className='SPP-colorPicker' color={v} onChangeComplete={this.setColor(k)}/>}
                                 </div>
                             )
                         })}
@@ -446,7 +463,7 @@ class SPP extends Component {
                                 <KeyboardArrowLeft/>
                             </Button>
 
-                            <Button onClick={() => this.nextStep()} disabled={disableNext}> {/*!startNode || !endNode || stateIndex === endIndex}>*/}
+                            <Button onClick={() => this.nextStep()} disabled={disableNext}>
                                 <KeyboardArrowRight/>
                             </Button>
                         </ButtonGroup>
