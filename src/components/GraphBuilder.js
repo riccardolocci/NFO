@@ -4,93 +4,6 @@ import { GraphView } from 'react-digraph';
 import '../css/GraphBuilder.css';
 
 
-const GraphConfig =  {
-    NodeTypes: {
-        empty: {
-            // typeText: "None",
-            shapeId: "#empty", // relates to the type property of a node
-            shape: (
-                <symbol viewBox="0 0 150 150" id="empty" key="0">
-                    <circle cx="75" cy="75" r="15" stroke="grey" />
-                </symbol>
-            )
-        },
-        startNode: {
-            shapeId: "#startNode", // relates to the type property of a node
-            shape: (
-                <symbol viewBox="0 0 150 150" id="startNode" key="1">
-                    <circle cx="75" cy="75" r="15" stroke="orange" strokeWidth="2"/>
-                </symbol>
-            )
-        },
-        endNode: {
-            shapeId: "#endNode", // relates to the type property of a node
-            shape: (
-                <symbol viewBox="0 0 150 150" id="endNode" key="2">
-                    <circle cx="75" cy="75" r="15" stroke="green" strokeWidth="2"/>
-                </symbol>
-            )
-        },
-        currentNode: {
-            // typeText: "currentNode",
-            shapeId: "#currentNode", // relates to the type property of a node
-            shape: (
-                <symbol viewBox="0 0 150 150" id="currentNode" key="3">
-                    <circle cx="75" cy="75" r="15" stroke="red" strokeWidth="2"/>
-                </symbol>
-            )
-        },
-        pathNode: {
-            shapeId: "#pathNode", // relates to the type property of a node
-            shape: (
-                <symbol viewBox="0 0 150 150" id="pathNode" key="4">
-                    <circle cx="75" cy="75" r="15" stroke="blue" strokeWidth="2"/>
-                </symbol>
-            )
-        },
-        visitedNode: {
-            // typeText: "visitedNode",
-            shapeId: "#visitedNode", // relates to the type property of a node
-            shape: (
-                <symbol viewBox="0 0 150 150" id="visitedNode" key="5">
-                    <circle cx="75" cy="75" r="15" stroke="yellow" strokeWidth="2"/>
-                </symbol>
-            )
-        }
-    },
-    NodeSubtypes: {},
-    EdgeTypes: {
-        emptyEdge: {  // required to show empty edges
-            shapeId: "#emptyEdge",
-            shape: (
-                <symbol viewBox="0 0 50 50" id="emptyEdge" key="0"/>
-            ),
-            color: 'black'
-        },
-        pathEdge: {  // required to show empty edges
-            shapeId: "#pathEdge",
-            shape: (
-                <symbol viewBox="0 0 50 50" id="pathEdge" key="1" />
-            ),
-            color: 'blue'
-        },
-        visitedEdge: {  // required to show empty edges
-            shapeId: "#visitedEdge",
-            shape: (
-                <symbol viewBox="0 0 50 50" id="visitedEdge" key="2" />
-            ),
-            color: '#c9c900'
-        },
-        currentEdge: {
-            shapeId: "#currentEdge",
-            shape: (
-                <symbol viewBox="0 0 50 50" id="currentEdge" key="3"/>
-            ),
-            color: 'red'
-        }
-    }
-}
-
 const ARROW_SIZE = 5;
 
 class GraphBuilder extends Component {
@@ -110,13 +23,95 @@ class GraphBuilder extends Component {
     }
   
     render() {
+        const { colors, edges, labelSize, layoutEngineType, nodes } = this.props;
+        
+        const GraphConfig =  {
+            NodeTypes: {
+                currentNode: {
+                    shapeId: "#currentNode",
+                    shape: (
+                        <symbol viewBox="0 0 150 150" id="currentNode" key="3">
+                            <circle cx="75" cy="75" r="15" stroke={colors.current} strokeWidth="2"/>
+                        </symbol>
+                    )
+                },
+                empty: {
+                    shapeId: "#empty",
+                    shape: (
+                        <symbol viewBox="0 0 150 150" id="empty" key="0">
+                            <circle cx="75" cy="75" r="15" stroke={colors.empty}  />
+                        </symbol>
+                    )
+                },
+                endNode: {
+                    shapeId: "#endNode",
+                    shape: (
+                        <symbol viewBox="0 0 150 150" id="endNode" key="2">
+                            <circle cx="75" cy="75" r="15" stroke={colors.end} strokeWidth="2"/>
+                        </symbol>
+                    )
+                },
+                pathNode: {
+                    shapeId: "#pathNode",
+                    shape: (
+                        <symbol viewBox="0 0 150 150" id="pathNode" key="4">
+                            <circle cx="75" cy="75" r="15" stroke={colors.path} strokeWidth="2"/>
+                        </symbol>
+                    )
+                },
+                startNode: {
+                    shapeId: "#startNode",
+                    shape: (
+                        <symbol viewBox="0 0 150 150" id="startNode" key="1">
+                            <circle cx="75" cy="75" r="15" stroke={colors.start} strokeWidth="2"/>
+                        </symbol>
+                    )
+                },
+                visitedNode: {
+                    shapeId: "#visitedNode",
+                    shape: (
+                        <symbol viewBox="0 0 150 150" id="visitedNode" key="5">
+                            <circle cx="75" cy="75" r="15" stroke={colors.visited} strokeWidth="2"/>
+                        </symbol>
+                    )
+                }
+            },
+            NodeSubtypes: {},
+            EdgeTypes: {
+                currentEdge: {
+                    shapeId: "#currentEdge",
+                    shape: (
+                        <symbol viewBox="0 0 50 50" id="currentEdge" key="3"/>
+                    ),
+                    color: colors.current
+                },
+                emptyEdge: {  // required to show empty edges
+                    shapeId: "#emptyEdge",
+                    shape: (
+                        <symbol viewBox="0 0 50 50" id="emptyEdge"  key="0"/>
+                    ),
+                    color: colors['not visited']
+                },
+                pathEdge: {
+                    shapeId: "#pathEdge",
+                    shape: (
+                        <symbol viewBox="0 0 50 50" id="pathEdge" key="1" />
+                    ),
+                    color: colors.path
+                },
+                visitedEdge: {
+                    shapeId: "#visitedEdge",
+                    shape: (
+                        <symbol viewBox="0 0 50 50" id="visitedEdge" key="2" />
+                    ),
+                    color: colors.visited
+                }
+            }
+        }
+
         const NodeTypes = GraphConfig.NodeTypes;
         const NodeSubtypes = GraphConfig.NodeSubtypes;
         const EdgeTypes = GraphConfig.EdgeTypes;
-
-        var { labelSize, nodes, edges, layoutEngineType } = this.props;
-
-        layoutEngineType = layoutEngineType ? null : false;
 
         return(
             <div className="GraphBuilder-root">
@@ -141,7 +136,7 @@ class GraphBuilder extends Component {
 
                     onBackgroundClick={(x, y) => this.moveNode(this.state.selected, {x,y})}
 
-                    layoutEngineType={layoutEngineType}
+                    layoutEngineType={layoutEngineType ? null : false}
 
                     edgeArrowSize={ARROW_SIZE}
 

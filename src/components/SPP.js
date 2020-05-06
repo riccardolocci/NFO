@@ -14,6 +14,14 @@ class SPP extends Component {
     constructor(props){
         super(props)
         this.state = {
+            colors: {
+                current: 'red',
+                'not visited': 'black',
+                end: 'green',
+                path: 'blue',
+                start: 'orange',
+                visited: '#c9c900'
+            },
             disableNext: true,
             endIndex: false,
             endNode: '',
@@ -254,30 +262,32 @@ class SPP extends Component {
                 this.setState({ disableNext, engine: !engine, finished, nextSteps, states, stateIndex });
                 break;
             case 2:
-                currentNode = algorithm.postprocess(edges, nodes[indexes[currentNode]]);
-                nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type;
-                nodes[indexes[currentNode]].type = 'currentNode';
+                {
+                    currentNode = algorithm.postprocess(edges, nodes[indexes[currentNode]]);
+                    nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type;
+                    nodes[indexes[currentNode]].type = 'currentNode';
 
-                disableNext = currentNode === startNode;
+                    disableNext = currentNode === startNode;
 
-                let newState = JSON.parse(JSON.stringify(states[stateIndex]));
-                newState.step++;
-                
-                stateIndex++;
-
-                if(!disableNext){        
-                    newState.currentNode = currentNode;
-                    states.push(newState);
+                    let newState = JSON.parse(JSON.stringify(states[stateIndex]));
+                    newState.step++;
                     
-                    this.setState({ engine: !engine, stateIndex, states });
-                }
-                else{
-                    newState.file.nodes[indexes[currentNode]].type = newState.file.nodes[indexes[currentNode]].prevType;
-                    delete newState.file.nodes[indexes[currentNode]].prevType;
+                    stateIndex++;
 
-                    newState.currentNode = null;
-                    states.push(newState);
-                    this.setState({ disableNext, endIndex: stateIndex, engine: !engine, finished: true, states });
+                    if(!disableNext){        
+                        newState.currentNode = currentNode;
+                        states.push(newState);
+                        
+                        this.setState({ engine: !engine, stateIndex, states });
+                    }
+                    else{
+                        newState.file.nodes[indexes[currentNode]].type = newState.file.nodes[indexes[currentNode]].prevType;
+                        delete newState.file.nodes[indexes[currentNode]].prevType;
+
+                        newState.currentNode = null;
+                        states.push(newState);
+                        this.setState({ disableNext, endIndex: stateIndex, engine: !engine, finished: true, states });
+                    }
                 }
 
                 break;
@@ -381,7 +391,7 @@ class SPP extends Component {
     }
 
     render() {
-        const { disableNext, finished, states, stateIndex, message, engine, selectedPath, startNode, endNode, targetAll} = this.state;
+        const { colors, disableNext, finished, states, stateIndex, message, engine, selectedPath, startNode, endNode, targetAll} = this.state;
         const file = states[stateIndex] ? states[stateIndex].file : null;
 
         const shortestPaths = this.getPaths(file);
@@ -408,23 +418,35 @@ class SPP extends Component {
                 
                 {file && <div className="SPP-graph">
                     <GraphBuilder
-                        labelSize = {13}
-                        nodes={file.nodes}
+                        colors={colors}
                         edges={file.edges}
+                        labelSize = {13}
                         layoutEngineType={engine}
-                        onSelectNode={this.moveNode}
                         moveNode={this.moveNode}
+                        nodes={file.nodes}
+                        onSelectNode={this.moveNode}
                     />
                     
                     <div className="SPP-spacer">
                         <Button className="SPP-button" onClick={() => this.onReset()}>RESET</Button>
+
+                        {Object.keys(colors).map(k => {
+                            const v = colors[k]
+
+                            return (
+                                <div key={k} className="SPP-legend">
+                                    <div style={{backgroundColor: v}} className="SPP-legendColor"/>
+                                    <p className="SPP-legendKey">{k}</p>
+                                </div>
+                            )
+                        })}
 
                         <ButtonGroup className="SPP-buttonRight">
                             <Button onClick={() => this.prevStep()} disabled={stateIndex === 0}>
                                 <KeyboardArrowLeft/>
                             </Button>
 
-                        <Button onClick={() => this.nextStep()} disabled={disableNext}> {/*!startNode || !endNode || stateIndex === endIndex}>*/}
+                            <Button onClick={() => this.nextStep()} disabled={disableNext}> {/*!startNode || !endNode || stateIndex === endIndex}>*/}
                                 <KeyboardArrowRight/>
                             </Button>
                         </ButtonGroup>

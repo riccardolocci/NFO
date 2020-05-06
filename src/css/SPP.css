@@ -43,6 +43,29 @@
     width: 100%;
 }
 
+.SPP-legend {
+    display: inline-block;
+    height: 20px;
+    margin: 15px 10px;
+    width: 100px;
+    text-align: initial;
+}
+
+.SPP-legendColor {
+    float: left;
+    border-radius: 10px;
+    height: 20px;
+    width: 20px;
+    margin: 0 10px 0 0;
+}
+ 
+.SPP-legendKey {
+    float: left;
+    height: 20px;
+    margin: 0;
+    font-size: 15px;
+}
+
 .SPP-paper {
     background-color: rgb(200, 0, 0) !important;
     color: white  !important;
