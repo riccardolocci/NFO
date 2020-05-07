@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Dropzone from './Dropzone';
+import ExamplesManager from './ExamplesManager';
 import GraphBuilder from './GraphBuilder';
 import { Button, ButtonGroup, FormControlLabel, MenuItem, OutlinedInput, Paper, Switch, TextField } from '@material-ui/core';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons';
@@ -414,7 +415,7 @@ class SPP extends Component {
         
         return (
             <div className="SPP-root">
-                <div><h1>SHORTEST PATH PROBLEM</h1></div>
+                <h2>SHORTEST PATH PROBLEM</h2>
                 <div className={file ? "SPP-dropClosed" : "SPP-drop"}>
                     <Dropzone
                         getFile={this.getFile}
@@ -422,6 +423,10 @@ class SPP extends Component {
                         showMessage={this.showMessage}
                         validationMode="SPP"
                     />
+                </div>
+
+                <div className={file ? "SPP-dropClosed" : "SPP-drop"}>
+                    <ExamplesManager getFile={this.getFile} />
                 </div>
                 
                 {!file && <div className="SPP-spacer">

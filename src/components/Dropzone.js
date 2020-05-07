@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import Drop from 'react-dropzone';
 import {Paper} from '@material-ui/core';
 
+import adapt from '../utilities/arrangeNodes';
+
 import '../css/Dropzone.css'
 
 class Dropzone extends Component {
@@ -22,21 +24,6 @@ class Dropzone extends Component {
                 edges: ['source', 'target']
             }
         }
-    }
-
-    adapt(f){
-        for(let el of f.nodes){
-            el.x = Math.random() * 600;
-            el.y = Math.random() * 600;
-            el.type = 'empty';
-        }
-
-        for(let el of f.edges){
-            el.type = 'emptyEdge';
-            el.handleText = '.';
-        }
-
-        return f;
     }
 
     validate(f){
@@ -86,7 +73,7 @@ class Dropzone extends Component {
                 let f = JSON.parse(this.result);
                 if(!scope.validate(f)) return;
 
-                f = scope.adapt(f);
+                f = adapt(f);
                 scope.getFile(f);
             }
             catch(e){
