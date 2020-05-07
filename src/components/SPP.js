@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Dropzone from './Dropzone';
 import ExamplesManager from './ExamplesManager';
+import RandomManager from './RandomManager';
 import GraphBuilder from './GraphBuilder';
 import { Button, ButtonGroup, FormControlLabel, MenuItem, OutlinedInput, Paper, Switch, TextField } from '@material-ui/core';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons';
@@ -425,8 +426,12 @@ class SPP extends Component {
                     />
                 </div>
 
-                <div className={file ? "SPP-dropClosed" : "SPP-drop"}>
+                <div className={file ? "SPP-dropClosed" : "SPP-generator"}>
                     <ExamplesManager getFile={this.getFile} />
+                </div>
+
+                <div className={file ? "SPP-dropClosed" : "SPP-generator"}>
+                    <RandomManager getFile={this.getFile} />
                 </div>
                 
                 {!file && <div className="SPP-spacer">

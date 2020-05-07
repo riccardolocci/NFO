@@ -33,6 +33,15 @@
     transition: 1s;
 }
 
+.SPP-generator {
+    height: 10vh;
+    width: 80%;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: 1s;
+}
+
 .SPP-graph {
     overflow: auto;
     width: 80%;
