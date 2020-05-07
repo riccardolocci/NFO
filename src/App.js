@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
 import './css/App.css';
 
-import Homepage from "./components/Homepage";
-import LeftDrawer from './components/LeftDrawer';
+// import Homepage from "./components/Homepage";
+// import LeftDrawer from './components/LeftDrawer';
 import NavBar from './components/NavBar';
 import SPP from './components/SPP';
-import MFP from './components/MFP';
-import MCFP from './components/MCFP';
+// import MFP from './components/MFP';
+// import MCFP from './components/MCFP';
 
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
@@ -20,7 +20,7 @@ class App extends Component {
   onToggleDrawer = (open) => {
     this.setState({ open: open });
   }
-  
+
   toggleDrawer() {
     this.sidebar.toggleDrawer();
   }
@@ -33,35 +33,36 @@ class App extends Component {
             <div className="App-root">
               <NavBar onClick={() => this.toggleDrawer()}></NavBar>
               <main className="App-container">
-                <LeftDrawer onRef={ref => (this.sidebar = ref)} onToggle={this.onToggleDrawer}/>
+                {/* <LeftDrawer onRef={ref => (this.sidebar = ref)} onToggle={this.onToggleDrawer}/> */}
                 <div className="App-centerPane">
-                  <Switch>
-                    <Route 
+                  {/* <Switch>
+                    <Route
                       exact path="/"
                       component={Homepage}
                     />
-                  </Switch>
+                  </Switch> */}
 
                   <Switch>
-                    <Route 
-                      exact path="/spp"
+                    <Route
+                      // exact path="/spp"
+                      exact path="/"
                       component={SPP}
                     />
                   </Switch>
 
-                  <Switch>
-                    <Route 
+                  {/* <Switch>
+                    <Route
                       exact path="/mfp"
                       component={MFP}
                     />
                   </Switch>
 
                   <Switch>
-                    <Route 
+                    <Route
                       exact path="/mcfp"
                       component={MCFP}
                     />
-                  </Switch>
+                  </Switch> */}
                 </div>
               </main>
             </div>

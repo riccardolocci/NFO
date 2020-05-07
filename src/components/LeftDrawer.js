@@ -68,7 +68,7 @@ class LeftDrawer extends React.Component {
           </Tooltip>
         </Link>
 
-        <Link to={'/mfp'} style={{ textDecoration: 'none' }}>
+        {/* <Link to={'/mfp'} style={{ textDecoration: 'none' }}>
           <Tooltip title="MAX FLOW">
             <MenuItem className="LeftDrawer-menuItem">
               <ListItemIcon>
@@ -88,7 +88,7 @@ class LeftDrawer extends React.Component {
               <ListItemText primary="MIN COST FLOW" />
             </MenuItem>
           </Tooltip>
-        </Link>
+        </Link> */}
 
       </Drawer>
     );
