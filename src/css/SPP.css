@@ -44,7 +44,6 @@
 }
 
 .SPP-graph {
-    overflow: auto;
     width: 80%;
     height: calc(100% - 200px);
     margin: auto;
@@ -94,6 +93,10 @@
     background-color: rgba(0,0,0,0.1);
 }
 
+.SPP-menu {
+    height: 350px;
+}
+
 .SPP-paper {
     background-color: rgb(200, 0, 0) !important;
     color: white  !important;
@@ -115,6 +118,17 @@
     width: 100%;
     transition: 0.2s;
     overflow: hidden;
+}
+
+.SPP-paths tbody {
+    display:block;
+    height:20vh;
+    overflow-y:auto;
+}
+.SPP-paths thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;
 }
 
 .SPP-paths tbody td{

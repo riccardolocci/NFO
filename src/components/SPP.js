@@ -3,7 +3,7 @@ import Dropzone from './Dropzone';
 import ExamplesManager from './ExamplesManager';
 import RandomManager from './RandomManager';
 import GraphBuilder from './GraphBuilder';
-import { Button, ButtonGroup, FormControlLabel, MenuItem, OutlinedInput, Paper, Switch, TextField } from '@material-ui/core';
+import { Button, ButtonGroup, FormControlLabel, MenuItem, Paper, Switch, TextField } from '@material-ui/core';
 import { KeyboardArrowLeft, KeyboardArrowRight, GetApp } from '@material-ui/icons';
 import { SketchPicker } from 'react-color';
 
@@ -115,7 +115,7 @@ class SPP extends Component {
         const { nodes, edges } = states[0].file;
 
         let fileNodes = nodes.map((n) => { return {id: n.id, title: n.title}});
-        let fileEdges = edges.map((n) => { return {source: n.source, target: n.target}});
+        let fileEdges = edges.map((n) => { return {source: n.source, target: n.target, cost: n.cost}});
 
         let file = JSON.stringify({nodes: fileNodes, edges: fileEdges});
 
@@ -504,7 +504,8 @@ class SPP extends Component {
                             value={startNode}
                             onChange={this.onChange('startNode')}
                             margin="normal"
-                            input={<OutlinedInput/>}
+                            variant="outlined" 
+                            SelectProps={{MenuProps: { className: 'SPP-menu'}}} 
                         >
                             <MenuItem key={'empty'} value='' />
                             {file.nodes.map(e => (
@@ -520,10 +521,11 @@ class SPP extends Component {
                             value={endNode}
                             onChange={this.onChange('endNode')}
                             margin="normal"
-                            input={<OutlinedInput/>}
+                            variant="outlined" 
+                            SelectProps={{MenuProps: { className: 'SPP-menu'}}} 
                         >
                             <MenuItem key={'empty'} value='' />
-                            {file.nodes.map(e => (
+                            {file.nodes.filter(e => e.id !== startNode).map(e => (
                                 <MenuItem key={e.id} value={e.id}>{e.title}</MenuItem>
                             ))}
                         </TextField>
@@ -551,9 +553,9 @@ class SPP extends Component {
                         <table className="SPP-paths">
                             <thead>
                                 <tr>
-                                    <td><strong>Node</strong></td>
-                                    <td><strong>Shortest Path</strong>
-                                    </td><td><strong>Path Cost</strong></td>
+                                    <th style={{width: '15%'}}><strong>Node</strong></th>
+                                    <th style={{width: '70%'}}><strong>Shortest Path</strong></th>
+                                    <th style={{width: '15%'}}><strong>Path Cost</strong></th>
                                 </tr>
                             </thead>
                             <tbody>
