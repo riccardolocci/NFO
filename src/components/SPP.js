@@ -4,7 +4,7 @@ import ExamplesManager from './ExamplesManager';
 import RandomManager from './RandomManager';
 import GraphBuilder from './GraphBuilder';
 import { Button, ButtonGroup, FormControlLabel, MenuItem, OutlinedInput, Paper, Switch, TextField } from '@material-ui/core';
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons';
+import { KeyboardArrowLeft, KeyboardArrowRight, GetApp } from '@material-ui/icons';
 import { SketchPicker } from 'react-color';
 
 
@@ -108,6 +108,22 @@ class SPP extends Component {
             nextSteps: [], 
             endIndex: false
         })
+    }
+
+    onDownload = () => {
+        const { states } = this.state;
+        const { nodes, edges } = states[0].file;
+
+        let fileNodes = nodes.map((n) => { return {id: n.id, title: n.title}});
+        let fileEdges = edges.map((n) => { return {source: n.source, target: n.target}});
+
+        let file = JSON.stringify({nodes: fileNodes, edges: fileEdges});
+
+        let link = document.createElement('a');
+        link.href =  window.URL.createObjectURL(new Blob([file],{type: 'application/json'}));//url;
+        link.setAttribute('download', `graph-${nodes.length}-${edges.length}-${Date.now()}`);
+        document.body.appendChild(link);
+        link.click();
     }
 
     showMessage = (message) => {
@@ -455,6 +471,7 @@ class SPP extends Component {
                     
                     <div className="SPP-spacer">
                         <Button className="SPP-button" onClick={() => this.onReset()}>RESET</Button>
+                        <Button className="SPP-button" onClick={() => this.onDownload()}><GetApp/></Button>
 
                         {Object.keys(colors).map(k => {
                             const v = colors[k]
