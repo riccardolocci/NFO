@@ -1,5 +1,6 @@
-import React from 'react';
-import DescriptionIcon from '@material-ui/icons/Description';
+import React, { useState } from 'react';
+import { CircularProgress } from '@material-ui/core';
+import { Description } from '@material-ui/icons';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import files from '../examples';
@@ -15,6 +16,8 @@ const useStyles = makeStyles((theme) => createStyles({
 
 let ExamplesManager = (props) => {
     const classes = useStyles();
+
+    var [ clicked, setClicked ] = useState();
     
     return (
         <>
@@ -24,7 +27,8 @@ let ExamplesManager = (props) => {
             
             {Object.keys(files).map(k => (
                 <div key={k} className={classes.doc}>
-                    <DescriptionIcon onClick={() => props.getFile(adapt(files[k]))} fontSize='large'/>
+                    {!props.loading && <Description onClick={() => {setClicked(k); props.getFile( adapt( files[k] ) )}} fontSize='large'/>}
+                    {props.loading && k===clicked && <CircularProgress color='inherit' fontSize='large'/>}
                     <br/>
                     {k}
                 </div>

@@ -3,7 +3,7 @@ import Dropzone from './Dropzone';
 import ExamplesManager from './ExamplesManager';
 import RandomManager from './RandomManager';
 import GraphBuilder from './GraphBuilder';
-import { Button, ButtonGroup, FormControlLabel, MenuItem, Paper, Switch, TextField } from '@material-ui/core';
+import { Button, ButtonGroup, CircularProgress, FormControlLabel, MenuItem, Paper, Switch, TextField } from '@material-ui/core';
 import { KeyboardArrowLeft, KeyboardArrowRight, GetApp } from '@material-ui/icons';
 import { SketchPicker } from 'react-color';
 
@@ -32,6 +32,7 @@ class SPP extends Component {
             endNode: '',
             finished: false,
             indexes: {},
+            loading: false,
             message: '',
             nextSteps: [],
             selectedPath: '',
@@ -43,6 +44,8 @@ class SPP extends Component {
     }
 
     getFile = (file) => {
+        this.setState({loading: true});
+
         var indexes = {};
 
         file.nodes.sort((a,b) => a.id - b.id)
@@ -54,7 +57,7 @@ class SPP extends Component {
         var { states } = this.state;
         states.push({phase: 0, step: 0, substep: 0, currentNode: null, file});
 
-        this.setState({ states, indexes });
+        this.setState({ states, indexes, loading: false });
     }
 
     onReset = () => this.setState({
@@ -159,6 +162,7 @@ class SPP extends Component {
 
     nextStep = () => {
         let { engine, finished, states, stateIndex } = this.state;
+        this.setState({ loading: true });
 
         if(states[++stateIndex]){
             let disableNext = !(stateIndex + 1 < states.length);
@@ -172,6 +176,7 @@ class SPP extends Component {
 
     prevStep = () => {
         let { engine, stateIndex, states } = this.state;
+        this.setState({ loading: true });
 
         stateIndex--;
         
@@ -425,7 +430,7 @@ class SPP extends Component {
     showPicker = (prev, next) => this.setState({colorPicker: prev===next ? '' : next})
 
     render() {
-        const { colorPicker, colors, disableNext, finished, states, stateIndex, message, engine, selectedPath, startNode, endNode, targetAll} = this.state;
+        const { colorPicker, colors, disableNext, finished, loading, states, stateIndex, message, engine, selectedPath, startNode, endNode, targetAll} = this.state;
         const file = states[stateIndex] ? states[stateIndex].file : null;
 
         const shortestPaths = this.getPaths(file);
@@ -443,11 +448,11 @@ class SPP extends Component {
                 </div>
 
                 <div className={file ? "SPP-dropClosed" : "SPP-generator"}>
-                    <ExamplesManager getFile={this.getFile} />
+                    <ExamplesManager getFile={this.getFile} loading={loading} />
                 </div>
 
                 <div className={file ? "SPP-dropClosed" : "SPP-generator"}>
-                    <RandomManager getFile={this.getFile} />
+                    <RandomManager getFile={this.getFile} loading={loading} />
                 </div>
                 
                 {!file && <div className="SPP-spacer">
@@ -466,6 +471,7 @@ class SPP extends Component {
                         layoutEngineType={engine}
                         moveNode={this.moveNode}
                         nodes={file.nodes}
+                        onRenderComplete={() => this.setState({ loading: false })}
                         onSelectNode={this.moveNode}
                     />
                     
@@ -486,14 +492,18 @@ class SPP extends Component {
                         })}
 
                         <ButtonGroup className="SPP-buttonRight">
-                            <Button onClick={() => this.prevStep()} disabled={stateIndex === 0}>
+                            <Button onClick={() => this.prevStep()} disabled={stateIndex === 0  || loading}>
                                 <KeyboardArrowLeft/>
                             </Button>
 
-                            <Button onClick={() => this.nextStep()} disabled={disableNext}>
+                            <Button onClick={() => this.nextStep()} disabled={disableNext || loading}>
                                 <KeyboardArrowRight/>
                             </Button>
                         </ButtonGroup>
+                        
+                        <div className="SPP-loading" >
+                            {loading && <CircularProgress color='inherit' size={35}/>}
+                        </div>
                     </div>
                     
                     <div className="SPP-spacer">

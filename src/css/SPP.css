@@ -93,6 +93,12 @@
     background-color: rgba(0,0,0,0.1);
 }
 
+.SPP-loading {
+    width: 50px;
+    float: right;
+    margin: 10px 10px !important;
+}
+
 .SPP-menu {
     height: 350px;
 }

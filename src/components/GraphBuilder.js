@@ -11,10 +11,17 @@ class GraphBuilder extends Component {
         super(props);
 
         this.state = {
-            selected: null
+            selected: null,
+            renderedEdges: 0
         }
 
         this.moveNode = this.props.moveNode;
+    }
+
+    componentDidUpdate(prevProps){
+        if(prevProps.layoutEngineType !== this.props.layoutEngineType){
+            this.setState({renderedNodes: 0, renderedEdges: 0});
+        }
     }
 
     setAttribute(c, aName, aValue, concat=true){
@@ -23,7 +30,8 @@ class GraphBuilder extends Component {
     }
   
     render() {
-        const { colors, edges, labelSize, layoutEngineType, nodes } = this.props;
+        const { colors, edges, labelSize, layoutEngineType, nodes, onRenderComplete } = this.props;
+        const { renderedEdges, selected } = this.state;
         
         const GraphConfig =  {
             NodeTypes: {
@@ -113,18 +121,21 @@ class GraphBuilder extends Component {
         const NodeSubtypes = GraphConfig.NodeSubtypes;
         const EdgeTypes = GraphConfig.EdgeTypes;
 
+        //  console.log('edges', edges.length);
+        //                 console.log('renderedEdges', renderedEdges);
+
         return(
             <div className="GraphBuilder-root">
                 <GraphView  ref='GraphView'
                     nodeKey="id"
                     nodes={nodes}
                     edges={edges}
-                    selected={this.state.selected}
+                    selected={selected}
                     nodeTypes={NodeTypes}
                     nodeSubtypes={NodeSubtypes}
                     edgeTypes={EdgeTypes}
                     readOnly
-                    onSelectNode={(e) => e === this.state.selected ? this.setState({selected: null}) : this.setState({selected: e})}
+                    onSelectNode={(e) => e === selected ? this.setState({selected: null}) : this.setState({selected: e})}
                     onCreateNode={() => {}}
                     onUpdateNode={() => {}}
                     onDeleteNode={() => {}}
@@ -134,7 +145,7 @@ class GraphBuilder extends Component {
                     onDeleteEdge={() => {}}
                     canCreateEdge={() => {}}
 
-                    onBackgroundClick={(x, y) => this.moveNode(this.state.selected, {x,y})}
+                    onBackgroundClick={(x, y) => this.moveNode(selected, {x,y})}
 
                     layoutEngineType={layoutEngineType ? null : false}
 
@@ -243,7 +254,9 @@ class GraphBuilder extends Component {
                                 this.setAttribute(comp_list[2], 'transform', `${transform} translate(${edge.cost ? labelSize : 0}, ${labelSize*2})`, false);
                             }
                         }
-                        
+
+                        this.setState({ renderedEdges: this.state.renderedEdges+1});
+                        if(renderedEdges === edges.length) onRenderComplete();
                     }}
                 />
             </div>
