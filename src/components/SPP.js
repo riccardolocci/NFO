@@ -9,6 +9,7 @@ import { SketchPicker } from 'react-color';
 
 
 import '../css/SPP.css'
+import InfoBox from './InfoBox';
 
 // var d3 = require('d3-force');
 
@@ -54,6 +55,14 @@ class SPP extends Component {
             indexes[el.id] = i;
         }
 
+        for(let [i, el] of file.edges.entries()){
+            let node =  file.nodes[indexes[el.source]];
+            
+            if(!node.leavingStar) node.leavingStar = [];
+
+            node.leavingStar.push(i);
+        }
+
         var { states } = this.state;
         states.push({phase: 0, step: 0, substep: 0, currentNode: null, file});
 
@@ -85,6 +94,7 @@ class SPP extends Component {
             let { indexes, startNode, states } = state;
             states.length = 1;
             states[0].file.nodes[indexes[startNode]].type = 'empty'
+            states[0].info = []
             return states
         }(this.state),
         targetAll: true
@@ -105,6 +115,12 @@ class SPP extends Component {
 
         for(let n of states[stateIndex].file.edges) n.type = 'emptyEdge';
         states[stateIndex].currentNode = null
+
+        if(!states[stateIndex].info) states[stateIndex].info = ['', '']
+
+        if(key === 'startNode')  states[stateIndex].info[0] = `Setting node ${e.target.value} as starting node`
+        if(key === 'endNode')  states[stateIndex].info[1] = `Setting node ${e.target.value} as ending node`
+        if(targetAll) states[stateIndex].info[1] = `All the other nodes will be targeted`
 
         this.setState({
             disableNext: !(e.target.value && (key === 'startNode' ? targetAll || endNode : startNode)),
@@ -154,18 +170,6 @@ class SPP extends Component {
         }
     }
 
-    updateNode(nodes, pred, i, dist){
-        let el = nodes[i];
-
-        if(el.type === 'empty') el.type = 'visitedNode';
-        
-        /******* If distance < 0, node was never explored *******/
-        if(el.distance < 0 || el.distance > dist){
-            el.distance = dist;
-            el.pred = pred;
-        }
-    }
-
     nextStep = () => {
         let { engine, finished, states, stateIndex } = this.state;
         this.setState({ loading: true });
@@ -201,16 +205,15 @@ class SPP extends Component {
                 {
                     let newState = JSON.parse(JSON.stringify(states[stateIndex]));
 
-                    /******* POTENTIALLY AMBIGUOUS *******/
-                    let {file: {nodes, edges}} = newState;
-
                     currentNode = startNode;
-                    nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type
-                    nodes[indexes[currentNode]].type = 'currentNode';
-
-                    algorithm.preprocess(nodes, edges, currentNode);
-
+                    
+                    let node = newState.file.nodes[indexes[currentNode]];
+                    node.prevType = node.type
+                    node.type = 'currentNode';
                     newState.currentNode = currentNode;
+
+                    algorithm.preprocess(newState);
+
                     newState.phase++;
                     states.push(newState);
 
@@ -220,48 +223,34 @@ class SPP extends Component {
                 }
                 break;
             case 1:
-                if(step === 0 && substep === 0){
-                    for(let [i, el] of edges.entries()){
-                        let node =  nodes[indexes[el.source]];
-                        
-                        if(!node.leavingStar) node.leavingStar = [];
+                let newState = JSON.parse(JSON.stringify(states[stateIndex]));
 
-                        node.leavingStar.push(i);
-                    }
+                if(substep > 0){
+                    // Edge at the previous step need to be rerendered as visited edge
+                    let edge = newState.file.edges[nodes[indexes[currentNode]].leavingStar[substep-1]];
+                    edge.type = edge.prevType;
+                    delete edge.prevType;
                 }
-                
+
                 if(nodes[indexes[currentNode]].leavingStar && substep < nodes[indexes[currentNode]].leavingStar.length){
-                    if(substep > 0){
-                        let idx = nodes[indexes[currentNode]].leavingStar[substep-1]
-                        edges[idx].type = edges[idx].prevType;
-                        delete edges[idx].prevType;
-                    }
-                    
-                    let idx = nodes[indexes[currentNode]].leavingStar[substep]
+                    let idx = newState.file.nodes[indexes[currentNode]].leavingStar[substep];
+                    let edge = newState.file.edges[idx];
 
-                    algorithm.process(nodes, edges[idx], currentNode, endNode, nextSteps, indexes, this.updateNode);
+                    algorithm.process(newState, edge, endNode, nextSteps, indexes);
 
-                    edges[idx].prevType = edges[idx].type;
-                    edges[idx].type = 'currentEdge';
+                    edge.prevType = edge.type;
+                    edge.type = 'currentEdge';
 
-                    let newState = JSON.parse(JSON.stringify(states[stateIndex]));
 
                     newState.substep++;
                     states.push(newState);
                 }
                 else{
-                    if(substep > 0){
-                        let idx = nodes[indexes[currentNode]].leavingStar[substep-1]
-                        edges[idx].type = edges[idx].prevType;
-                        delete edges[idx].prevType;
-                    }
-
-                    nodes[indexes[currentNode]].type = nodes[indexes[currentNode]].prevType;
-                    delete nodes[indexes[currentNode]].prevType;
+                    let node = newState.file.nodes[indexes[currentNode]]
+                    node.type = node.prevType;
+                    delete node.prevType;
 
                     currentNode = nextSteps[step];
-
-                    let newState = null;
 
                     if(!currentNode){
                         phase++;
@@ -270,35 +259,38 @@ class SPP extends Component {
                         if(targetAll){
                             disableNext = true;
                             finished = true;
+
+                            newState.info = [`All paths explored, algorithm completed`]
                         }
                         else{
                             currentNode = endNode;
-                            nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type;
-                            nodes[indexes[currentNode]].type = 'currentNode';
+                            node = newState.file.nodes[indexes[currentNode]]
+                            node.prevType = node.type;
+                            node.type = 'currentNode';
                         
-                            newState = JSON.parse(JSON.stringify(states[stateIndex]));
                             newState.phase++;
                             newState.step = 0;
                             newState.substep = 0;
+                            
+                            newState.info = [`Setting node ${endNode} as current node since there is no node left to explore`]
                         }
                     }
                     else{
-                        nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type;
-                        nodes[indexes[currentNode]].type = 'currentNode';
+                        node = newState.file.nodes[indexes[currentNode]]
+                        node.prevType = node.type;
+                        node.type = 'currentNode';
                         
-                        newState = JSON.parse(JSON.stringify(states[stateIndex]));
+                        newState.info = [`Setting node ${currentNode} as the current node`]
                         newState.substep = 0;
                         newState.step++;
                     }
 
-                    if(newState) {
-                        newState.currentNode = currentNode;
-                        states.push(newState);
-                    }
+                    newState.currentNode = currentNode;
+                    states.push(newState);
                     
                 }
 
-                if(!finished) stateIndex++;
+                stateIndex++;
 
                 this.setState({ disableNext, engine: !engine, finished, nextSteps, states, stateIndex });
                 break;
@@ -556,14 +548,7 @@ class SPP extends Component {
 
                     <div className="SPP-infoBox">
                         <h3>Info</h3>
-                        <table>
-                            <tbody>
-                                 <tr><td>Phase:</td><td>{states[stateIndex].phase}</td></tr>
-                                <tr><td>Step:</td><td>{states[stateIndex].step}</td></tr>
-                                <tr><td>Substep:</td><td>{states[stateIndex].substep}</td></tr>
-                            </tbody>
-                               
-                        </table>
+                        <InfoBox phase={states[stateIndex].phase} step={states[stateIndex].step} substep={states[stateIndex].substep} info={states[stateIndex].info} />
                     </div>
                     <div className="SPP-infoBox">
                         <h3>Paths</h3>
