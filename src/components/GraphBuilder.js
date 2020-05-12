@@ -256,7 +256,7 @@ class GraphBuilder extends Component {
                         }
 
                         this.setState({ renderedEdges: this.state.renderedEdges+1});
-                        if(renderedEdges === edges.length) onRenderComplete();
+                        if(renderedEdges + 1 === edges.length) onRenderComplete();
                     }}
                 />
             </div>

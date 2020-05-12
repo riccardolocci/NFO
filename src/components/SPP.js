@@ -60,7 +60,7 @@ class SPP extends Component {
         this.setState({ states, indexes, loading: false });
     }
 
-    onReset = () => this.setState({
+    onReset = (clear=false) => this.setState({
         colorPicker: '',
         colors: {
             current: 'red',
@@ -73,14 +73,20 @@ class SPP extends Component {
         disableNext: true,
         endIndex: false,
         endNode: '',
+        engine: !this.state.engine,
         finished: false,
-        indexes: {},
+        indexes: clear ? {} : this.state.indexes,
         message: '',
         nextSteps: [],
         selectedPath: '',
         startNode: '',
         stateIndex: 0,
-        states: [],
+        states: clear ? [] : function(state){
+            let { indexes, startNode, states } = state;
+            states.length = 1;
+            states[0].file.nodes[indexes[startNode]].type = 'empty'
+            return states
+        }(this.state),
         targetAll: true
     });
 
@@ -123,7 +129,7 @@ class SPP extends Component {
         let file = JSON.stringify({nodes: fileNodes, edges: fileEdges});
 
         let link = document.createElement('a');
-        link.href =  window.URL.createObjectURL(new Blob([file],{type: 'application/json'}));//url;
+        link.href =  window.URL.createObjectURL(new Blob([file],{type: 'application/json'}));
         link.setAttribute('download', `graph-${nodes.length}-${edges.length}-${Date.now()}`);
         document.body.appendChild(link);
         link.click();
@@ -476,6 +482,7 @@ class SPP extends Component {
                     />
                     
                     <div className="SPP-spacer">
+                        <Button className="SPP-button" onClick={() => this.onReset(true)}>CLEAR</Button>
                         <Button className="SPP-button" onClick={() => this.onReset()}>RESET</Button>
                         <Button className="SPP-button" onClick={() => this.onDownload()}><GetApp/></Button>
 
