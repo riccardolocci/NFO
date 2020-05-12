@@ -46,16 +46,20 @@ export function process(state, edge, endNode, nextSteps, indexes){
     }
 }
 
-export function postprocess(edges, currentNode){
+export function postprocess(state, currentNode){
+    let { file: { edges } } = state;
+    
     if(currentNode.prevType === 'visitedNode') currentNode.prevType = 'pathNode';
 
+    // Can be optimized?
     for(let el of edges) if(currentNode.pred === el.source && currentNode.id === el.target){
         el.type = 'pathEdge';
+        state.info = [`Found node ${el.source} while following the path backwards`, `Marking edge ${el.source}-${el.target} as path edge`]
         break;
     }
 
+    state.info.push(`Marking node ${currentNode.id} as path node`);
+
     currentNode.type = currentNode.prevType;
     delete currentNode.prevType;
-
-    return currentNode.pred;
 }

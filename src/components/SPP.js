@@ -196,7 +196,7 @@ class SPP extends Component {
     launchAlgorithm(name = 'dijkstra'){
         var { disableNext, endNode, engine, finished, indexes, nextSteps, states, stateIndex, startNode, targetAll } = this.state;
 
-        var {file: {nodes, edges}, currentNode, phase, step, substep} = states[stateIndex];
+        var { file: { nodes }, currentNode, phase, step, substep } = states[stateIndex];
 
         var algorithm = require(`../algorithms/${name}`);
 
@@ -272,7 +272,7 @@ class SPP extends Component {
                             newState.step = 0;
                             newState.substep = 0;
                             
-                            newState.info = [`Setting node ${endNode} as current node since there is no node left to explore`]
+                            newState.info = [`Setting node ${endNode} (ending node) as current node since there is no node left to explore`]
                         }
                     }
                     else{
@@ -296,13 +296,20 @@ class SPP extends Component {
                 break;
             case 2:
                 {
-                    currentNode = algorithm.postprocess(edges, nodes[indexes[currentNode]]);
-                    nodes[indexes[currentNode]].prevType = nodes[indexes[currentNode]].type;
-                    nodes[indexes[currentNode]].type = 'currentNode';
+                    let newState = JSON.parse(JSON.stringify(states[stateIndex]));
+
+                    let node = newState.file.nodes[indexes[currentNode]];
+
+                    algorithm.postprocess(newState, node);
+
+                    currentNode = node.pred;
+
+                    node = newState.file.nodes[indexes[currentNode]];
+                    node.prevType = node.type;
+                    node.type = 'currentNode';
 
                     disableNext = currentNode === startNode;
 
-                    let newState = JSON.parse(JSON.stringify(states[stateIndex]));
                     newState.step++;
                     
                     stateIndex++;
@@ -314,12 +321,14 @@ class SPP extends Component {
                         this.setState({ engine: !engine, stateIndex, states });
                     }
                     else{
-                        newState.file.nodes[indexes[currentNode]].type = newState.file.nodes[indexes[currentNode]].prevType;
-                        delete newState.file.nodes[indexes[currentNode]].prevType;
+                        node.type = node.prevType;
+                        delete node.prevType;
+
+                        newState.info.push(`Found shortest path that leads node ${startNode} to node ${endNode}`);
 
                         newState.currentNode = null;
                         states.push(newState);
-                        this.setState({ disableNext, endIndex: stateIndex, engine: !engine, finished: true, states });
+                        this.setState({ disableNext, endIndex: stateIndex, engine: !engine, finished: true, stateIndex, states });
                     }
                 }
 
