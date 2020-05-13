@@ -18,7 +18,7 @@
 }
 
 .SPP-drop {
-    height: 50vh;
+    height: 40vh;
     width: 80%;
     margin-top: 50px;
     margin-left: auto;
@@ -47,12 +47,15 @@
     width: 80%;
     height: calc(100% - 200px);
     margin: auto;
+    white-space: nowrap;
 }
 
 .SPP-infoBox {
     text-align: left;
     width: 50%;
     display: inline-block;
+    white-space: normal;
+    vertical-align: top;
 }
 
 .SPP-infoBox table {
