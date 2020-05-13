@@ -51,16 +51,7 @@ export function postprocess(state, indexes, currentNode){
     
     if(currentNode.prevType === 'visitedNode') currentNode.prevType = 'pathNode';
 
-    // Can be optimized?
-    // for(let el of edges) if(currentNode.pred === el.source && currentNode.id === el.target){
-    //     el.type = 'pathEdge';
-    //     state.info = [`Found node ${el.source} while following the path backwards`, `Marking edge ${el.source}-${el.target} as path edge`]
-    //     break;
-    // }
-
     let previousNode = nodes[indexes[currentNode.pred]];
-
-    console.log('previousNode', previousNode)
 
     for(let idx of previousNode.leavingStar) {
         let edge = edges[idx];
