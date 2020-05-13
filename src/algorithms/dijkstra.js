@@ -46,16 +46,29 @@ export function process(state, edge, endNode, nextSteps, indexes){
     }
 }
 
-export function postprocess(state, currentNode){
-    let { file: { edges } } = state;
+export function postprocess(state, indexes, currentNode){
+    let { file: { edges, nodes } } = state;
     
     if(currentNode.prevType === 'visitedNode') currentNode.prevType = 'pathNode';
 
     // Can be optimized?
-    for(let el of edges) if(currentNode.pred === el.source && currentNode.id === el.target){
-        el.type = 'pathEdge';
-        state.info = [`Found node ${el.source} while following the path backwards`, `Marking edge ${el.source}-${el.target} as path edge`]
-        break;
+    // for(let el of edges) if(currentNode.pred === el.source && currentNode.id === el.target){
+    //     el.type = 'pathEdge';
+    //     state.info = [`Found node ${el.source} while following the path backwards`, `Marking edge ${el.source}-${el.target} as path edge`]
+    //     break;
+    // }
+
+    let previousNode = nodes[indexes[currentNode.pred]];
+
+    console.log('previousNode', previousNode)
+
+    for(let idx of previousNode.leavingStar) {
+        let edge = edges[idx];
+        if(currentNode.id === edge.target){
+            edge.type = 'pathEdge';
+            state.info = [`Found node ${edge.source} while following the path backwards`, `Marking edge ${edge.source}-${edge.target} as path edge`]
+            break;
+        }
     }
 
     state.info.push(`Marking node ${currentNode.id} as path node`);

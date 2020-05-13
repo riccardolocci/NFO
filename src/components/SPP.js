@@ -302,7 +302,7 @@ class SPP extends Component {
 
                     let node = newState.file.nodes[indexes[currentNode]];
 
-                    algorithm.postprocess(newState, node);
+                    algorithm.postprocess(newState, indexes, node);
 
                     currentNode = node.pred;
 
