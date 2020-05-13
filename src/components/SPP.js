@@ -103,11 +103,13 @@ class SPP extends Component {
     onChange = (key) => (e) => {
         var { endNode, engine, startNode, stateIndex, states, targetAll } = this.state;
 
+        const { value } = e.target;
+
         states.splice(1, states.length - 1);
         stateIndex = 0;
 
         for(let n of states[stateIndex].file.nodes){
-            if(n.id === e.target.value){
+            if(n.id === value){
                 n.type = key
             }
             else if(n.type === key) n.type = 'empty';
@@ -118,14 +120,14 @@ class SPP extends Component {
 
         if(!states[stateIndex].info) states[stateIndex].info = ['', '']
 
-        if(key === 'startNode')  states[stateIndex].info[0] = `Setting node ${e.target.value} as starting node`
-        if(key === 'endNode')  states[stateIndex].info[1] = `Setting node ${e.target.value} as ending node`
+        if(value && key === 'startNode')  states[stateIndex].info[0] = `Setting node ${value} as starting node`
+        if(value && key === 'endNode')  states[stateIndex].info[1] = `Setting node ${value} as ending node`
         if(targetAll) states[stateIndex].info[1] = `All the other nodes will be targeted`
 
         this.setState({
-            disableNext: !(e.target.value && (key === 'startNode' ? targetAll || endNode : startNode)),
+            disableNext: !(value && (key === 'startNode' ? targetAll || endNode : startNode)),
             finished: false,
-            [key]: e.target.value,
+            [key]: value,
             selectedPath: '',
             states,
             stateIndex,
@@ -340,6 +342,8 @@ class SPP extends Component {
 
     targetAll = (e, value) => {
         const { endNode, startNode, states } = this.state;
+        if( value ) states[0].info[1] = `All the other nodes will be targeted`
+ 
         this.setState({ disableNext: value ? !startNode : !(endNode && startNode), endNode: '', finished: false, selectedPath: '', stateIndex: 0, states: [states[0]], targetAll: value });
     }
 
