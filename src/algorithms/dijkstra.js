@@ -17,7 +17,7 @@ export function process(state, edge, endNode, nextSteps, indexes){
     var {file: {nodes}, currentNode } = state;
     edge.type = 'visitedEdge';
 
-    state.info = [`Scanning leaving star for node ${currentNode}`, `Found node ${edge.target}`]
+    state.info = [`Scanning leaving star for node ${nodes[indexes[currentNode]].title}`, `Found node ${nodes[indexes[edge.target]].title}`]
     
     if(edge.target !== endNode && nodes[indexes[edge.target]].type !== 'visitedNode'){
         nextSteps.push(edge.target);
@@ -27,7 +27,7 @@ export function process(state, edge, endNode, nextSteps, indexes){
 
     if(node.type === 'empty') {
         node.type = 'visitedNode';
-        state.info.push(`Marking node ${edge.target} as a visited node`);
+        state.info.push(`Marking node ${nodes[indexes[edge.target]].title} as a visited node`);
     }
 
     var { distance } = nodes[indexes[currentNode]]
@@ -36,10 +36,10 @@ export function process(state, edge, endNode, nextSteps, indexes){
     /******* If distance < 0, node was never explored *******/
     if(node.distance < 0 || node.distance > newDistance){
         node.distance < 0 ? 
-            state.info.push(`Updating node ${edge.target}'s distance from the source since it was found for the first time`) :
-            state.info.push(`Updating node ${edge.target}'s distance from the source since a shorter path was found`);
+            state.info.push(`Updating node ${nodes[indexes[edge.target]].title}'s distance from the source since it was found for the first time`) :
+            state.info.push(`Updating node ${nodes[indexes[edge.target]].title}'s distance from the source since a shorter path was found`);
         
-        state.info.push(`Setting node ${edge.source} as predecessor of node ${edge.target}`);
+        state.info.push(`Setting node ${nodes[indexes[edge.source]].title} as predecessor of node ${nodes[indexes[edge.target]].title}`);
 
         node.distance = newDistance;
         node.pred = edge.source;
@@ -57,12 +57,12 @@ export function postprocess(state, indexes, currentNode){
         let edge = edges[idx];
         if(currentNode.id === edge.target){
             edge.type = 'pathEdge';
-            state.info = [`Found node ${edge.source} while following the path backwards`, `Marking edge ${edge.source}-${edge.target} as path edge`]
+            state.info = [`Found node ${nodes[indexes[edge.source]].title} while following the path backwards`, `Marking edge ${nodes[indexes[edge.source]].title}-${nodes[indexes[edge.target]].title} as path edge`]
             break;
         }
     }
 
-    state.info.push(`Marking node ${currentNode.id} as path node`);
+    state.info.push(`Marking node ${nodes[indexes[currentNode.id]].title} as path node`);
 
     currentNode.type = currentNode.prevType;
     delete currentNode.prevType;

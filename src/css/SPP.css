@@ -130,14 +130,14 @@
 }
 
 .SPP-paths tbody {
-    display:block;
-    height:20vh;
-    overflow-y:auto;
+    display: block;
+    height: 20vh;
+    overflow-y: auto;
 }
 .SPP-paths thead, tbody tr {
-    display:table;
-    width:100%;
-    table-layout:fixed;
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
 
 .SPP-paths tbody td{
@@ -150,6 +150,7 @@
 
 .SPP-root {
     height: 100%;
+    font-size: calc(12px + (18 - 12) * ((100vw - 1600px) / (2600 - 1600)));;
 }
 
 .SPP-select {

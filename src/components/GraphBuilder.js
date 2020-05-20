@@ -121,9 +121,6 @@ class GraphBuilder extends Component {
         const NodeSubtypes = GraphConfig.NodeSubtypes;
         const EdgeTypes = GraphConfig.EdgeTypes;
 
-        //  console.log('edges', edges.length);
-        //                 console.log('renderedEdges', renderedEdges);
-
         return(
             <div className="GraphBuilder-root">
                 <GraphView  ref='GraphView'

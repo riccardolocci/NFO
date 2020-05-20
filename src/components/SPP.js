@@ -101,7 +101,9 @@ class SPP extends Component {
     });
 
     onChange = (key) => (e) => {
-        var { endNode, engine, startNode, stateIndex, states, targetAll } = this.state;
+        var { endNode, engine, indexes, startNode, stateIndex, states, targetAll } = this.state;
+
+        let { nodes } = states[stateIndex].file;
 
         const { value } = e.target;
 
@@ -120,8 +122,8 @@ class SPP extends Component {
 
         if(!states[stateIndex].info) states[stateIndex].info = ['', '']
 
-        if(value && key === 'startNode')  states[stateIndex].info[0] = `Setting node ${value} as starting node`
-        if(value && key === 'endNode')  states[stateIndex].info[1] = `Setting node ${value} as ending node`
+        if(value && key === 'startNode')  states[stateIndex].info[0] = `Setting node ${nodes[indexes[value]].title} as starting node`
+        if(value && key === 'endNode')  states[stateIndex].info[1] = `Setting node ${nodes[indexes[value]].title} as ending node`
         if(targetAll) states[stateIndex].info[1] = `All the other nodes will be targeted`
 
         this.setState({
@@ -274,7 +276,7 @@ class SPP extends Component {
                             newState.step = 0;
                             newState.substep = 0;
                             
-                            newState.info = [`Setting node ${endNode} (ending node) as current node since there is no node left to explore`]
+                            newState.info = [`Setting node ${nodes[indexes[endNode]].title} (ending node) as current node since there is no node left to explore`]
                         }
                     }
                     else{
@@ -282,7 +284,7 @@ class SPP extends Component {
                         node.prevType = node.type;
                         node.type = 'currentNode';
                         
-                        newState.info = [`Setting node ${currentNode} as the current node`]
+                        newState.info = [`Setting node ${nodes[indexes[currentNode]].title} as the current node`]
                         newState.substep = 0;
                         newState.step++;
                     }
@@ -326,7 +328,7 @@ class SPP extends Component {
                         node.type = node.prevType;
                         delete node.prevType;
 
-                        newState.info.push(`Found shortest path that leads node ${startNode} to node ${endNode}`);
+                        newState.info.push(`Found shortest path that leads node ${nodes[indexes[startNode]].title} to node ${nodes[indexes[endNode]].title}`);
 
                         newState.currentNode = null;
                         states.push(newState);
@@ -341,10 +343,13 @@ class SPP extends Component {
     }
 
     targetAll = (e, value) => {
-        const { endNode, startNode, states } = this.state;
-        if( value ) states[0].info[1] = `All the other nodes will be targeted`
+        const { endNode, engine, indexes, startNode, states } = this.state;
+        if( value ){
+            states[0].info[1] = `All the other nodes will be targeted`
+            states[0].file.nodes[indexes[endNode]].type = 'empty'
+        }
  
-        this.setState({ disableNext: value ? !startNode : !(endNode && startNode), endNode: '', finished: false, selectedPath: '', stateIndex: 0, states: [states[0]], targetAll: value });
+        this.setState({ disableNext: value ? !startNode : !(endNode && startNode), endNode: '', engine: !engine, finished: false, selectedPath: '', stateIndex: 0, states: [states[0]], targetAll: value });
     }
 
     getPaths = (file) => {
@@ -601,11 +606,6 @@ class SPP extends Component {
                             </thead>
                             <tbody>
                                 {file.nodes.map(e => (
-                                    // <tr key={e.id} className={e.id === startNode ? 'SPP-sourceRow SPP-unselectableRow' : stateIndex === states.length - 1 ? e.id === selectedPath ? 'SPP-selectedRow SPP-selectableRow' : shortestPaths[e.id] ? 'SPP-selectableRow' : 'SPP-unselectableRow' : 'SPP-unselectableRow'} onClick={() => this.togglePath(e.id, shortestPaths[e.id], shortestPaths[selectedPath])}>
-                                    //     <td style={{width: '15%'}}>{e.id}</td>
-                                    //     <td style={{width: '70%'}}>{e.id === startNode ? 'Source' : stateIndex === states.length - 1 && finished ? shortestPaths[e.id] ? shortestPaths[e.id].join(PATH_SEPARATOR) : 'No path found' : shortestPaths[e.id] ? shortestPaths[e.id].join(PATH_SEPARATOR)  : ''}</td>
-                                    //     <td style={{width: '15%'}}>{stateIndex === states.length - 1 && finished ? e.distance >= 0 ? e.distance : '∞' : e.distance >= 0 ? e.distance : ''}</td>
-                                    // </tr>
                                     <tr key={e.title} className={e.id === startNode ? 'SPP-sourceRow SPP-unselectableRow' : stateIndex === states.length - 1 ? e.id === selectedPath ? 'SPP-selectedRow SPP-selectableRow' : shortestPaths[e.id] ? 'SPP-selectableRow' : 'SPP-unselectableRow' : 'SPP-unselectableRow'} onClick={() => this.togglePath(e.id, shortestPaths[e.id], shortestPaths[selectedPath])}>
                                         <td style={{width: '15%'}}>{e.title}</td>
                                         <td style={{width: '70%'}}>{e.id === startNode ? 'Source' : stateIndex === states.length - 1 && finished ? shortestPaths[e.id] ? this.stringPath(file.nodes, shortestPaths[e.id]) : 'No path found' : shortestPaths[e.id] ? this.stringPath(file.nodes, shortestPaths[e.id])  : ''}</td>
