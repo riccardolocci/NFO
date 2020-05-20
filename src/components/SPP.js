@@ -438,7 +438,33 @@ class SPP extends Component {
 
     setColor = k => v => { let { colors, engine } = this.state; colors[k] = v.hex;  this.setState({ colors, engine: !engine }); }
 
-    showPicker = (prev, next) => this.setState({colorPicker: prev===next ? '' : next})
+    showPicker = (prev, next) => this.setState({colorPicker: prev===next ? '' : next});
+
+    isPathEdge = (edge, paths) => {
+        let shortestPath = paths[edge.target];
+        let [pred] = shortestPath.slice(-2,-1);
+        
+        return pred === edge.source;
+    }
+
+    computeObjective = (edges, paths) => {
+        const { targetAll } = this.state;
+
+        let objective = 0
+        for(let edge of edges) 
+            if(targetAll){
+                if(this.isPathEdge(edge, paths)) objective += edge.cost ? edge.cost : 1;
+            }
+            else if(edge.type === 'pathEdge') objective += edge.cost ? edge.cost : 1;
+
+        return objective;
+    }
+
+    stringPath = (nodes, path) => {
+        const { indexes } = this.state;
+
+        return path.map(n => nodes[indexes[n]].title).join(PATH_SEPARATOR);
+    }
 
     render() {
         const { colorPicker, colors, disableNext, finished, loading, states, stateIndex, message, engine, selectedPath, startNode, endNode, targetAll} = this.state;
@@ -564,7 +590,7 @@ class SPP extends Component {
                         <InfoBox phase={states[stateIndex].phase} step={states[stateIndex].step} substep={states[stateIndex].substep} info={states[stateIndex].info} />
                     </div>
                     <div className="SPP-infoBox">
-                        <h3>Paths</h3>
+                        <h3>Paths {stateIndex === states.length - 1 && finished ? `(O.F. ${this.computeObjective(file.edges, shortestPaths)})`: ''}</h3>
                         <table className="SPP-paths">
                             <thead>
                                 <tr>
@@ -575,11 +601,16 @@ class SPP extends Component {
                             </thead>
                             <tbody>
                                 {file.nodes.map(e => (
-                                    <tr key={e.id} className={e.id === startNode ? 'SPP-sourceRow SPP-unselectableRow' : stateIndex === states.length - 1 ? e.id === selectedPath ? 'SPP-selectedRow SPP-selectableRow' : shortestPaths[e.id] ? 'SPP-selectableRow' : 'SPP-unselectableRow' : 'SPP-unselectableRow'} onClick={() => this.togglePath(e.id, shortestPaths[e.id], shortestPaths[selectedPath])}>
-                                        <td style={{width: '15%'}}>{e.id}</td>
-                                        <td style={{width: '70%'}}>{e.id === startNode ? 'Source' : stateIndex === states.length - 1 && finished ? shortestPaths[e.id] ? shortestPaths[e.id].join(PATH_SEPARATOR) : 'No path found' : shortestPaths[e.id] ? shortestPaths[e.id].join(PATH_SEPARATOR)  : ''}</td>
-                                        <td style={{width: '15%'}}>{stateIndex === states.length - 1 && finished ? e.distance >= 0 ? e.distance : '∞' : e.distance >= 0 ? e.distance : ''}</td>
-                                    </tr>
+                                    // <tr key={e.id} className={e.id === startNode ? 'SPP-sourceRow SPP-unselectableRow' : stateIndex === states.length - 1 ? e.id === selectedPath ? 'SPP-selectedRow SPP-selectableRow' : shortestPaths[e.id] ? 'SPP-selectableRow' : 'SPP-unselectableRow' : 'SPP-unselectableRow'} onClick={() => this.togglePath(e.id, shortestPaths[e.id], shortestPaths[selectedPath])}>
+                                    //     <td style={{width: '15%'}}>{e.id}</td>
+                                    //     <td style={{width: '70%'}}>{e.id === startNode ? 'Source' : stateIndex === states.length - 1 && finished ? shortestPaths[e.id] ? shortestPaths[e.id].join(PATH_SEPARATOR) : 'No path found' : shortestPaths[e.id] ? shortestPaths[e.id].join(PATH_SEPARATOR)  : ''}</td>
+                                    //     <td style={{width: '15%'}}>{stateIndex === states.length - 1 && finished ? e.distance >= 0 ? e.distance : '∞' : e.distance >= 0 ? e.distance : ''}</td>
+                                    // </tr>
+                                    <tr key={e.title} className={e.id === startNode ? 'SPP-sourceRow SPP-unselectableRow' : stateIndex === states.length - 1 ? e.id === selectedPath ? 'SPP-selectedRow SPP-selectableRow' : shortestPaths[e.id] ? 'SPP-selectableRow' : 'SPP-unselectableRow' : 'SPP-unselectableRow'} onClick={() => this.togglePath(e.id, shortestPaths[e.id], shortestPaths[selectedPath])}>
+                                        <td style={{width: '15%'}}>{e.title}</td>
+                                        <td style={{width: '70%'}}>{e.id === startNode ? 'Source' : stateIndex === states.length - 1 && finished ? shortestPaths[e.id] ? this.stringPath(file.nodes, shortestPaths[e.id]) : 'No path found' : shortestPaths[e.id] ? this.stringPath(file.nodes, shortestPaths[e.id])  : ''}</td>
+                                    <td style={{width: '15%'}}>{stateIndex === states.length - 1 && finished ? e.distance >= 0 ? e.distance : '∞' : e.distance >= 0 ? e.distance : ''}</td>
+                                </tr>
                                 ))}
                             </tbody>
                                
