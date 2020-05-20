@@ -93,7 +93,7 @@ class SPP extends Component {
         states: clear ? [] : function(state){
             let { indexes, startNode, states } = state;
             states.length = 1;
-            states[0].file.nodes[indexes[startNode]].type = 'empty'
+            if(startNode) states[0].file.nodes[indexes[startNode]].type = 'empty'
             states[0].info = []
             return states
         }(this.state),
