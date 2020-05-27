@@ -446,14 +446,23 @@ class SPP extends Component {
     showPicker = (prev, next) => this.setState({colorPicker: prev===next ? '' : next});
 
     computeObjective = (edges, paths) => {
+        const { endNode, targetAll } = this.state;
+
         let objective = 0
         let costs = {}
 
         for(let edge of edges) 
             costs[`${edge.source}${edge.target}`] = edge.cost ? edge.cost : 1;
 
-        for(let node in paths){
-            let path = paths[node]
+        if(targetAll) 
+            for(let node in paths){
+                let path = paths[node]
+
+                for(let i=0; i<path.length-1; i++)
+                    objective += costs[`${path[i]}${path[i+1]}`]
+            }
+        else {
+            let path = paths[endNode]
 
             for(let i=0; i<path.length-1; i++)
                 objective += costs[`${path[i]}${path[i+1]}`]
