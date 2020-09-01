@@ -11,8 +11,6 @@ import { SketchPicker } from 'react-color';
 import '../css/SPP.css'
 import InfoBox from './InfoBox';
 
-// var d3 = require('d3-force');
-
 const PATH_SEPARATOR = ' → '
 
 class SPP extends Component {
@@ -26,7 +24,8 @@ class SPP extends Component {
                 end: 'green',
                 path: 'blue',
                 start: 'orange',
-                visited: '#c9c900'
+                marked: '#c9c900',
+                visited: 'gray'
             },
             disableNext: true,
             endIndex: false,
@@ -77,7 +76,8 @@ class SPP extends Component {
             end: 'green',
             path: 'blue',
             start: 'orange',
-            visited: '#c9c900'
+            marked: '#c9c900',
+            visited: 'gray'
         },
         disableNext: true,
         endIndex: false,
@@ -200,7 +200,7 @@ class SPP extends Component {
     launchAlgorithm(name = 'dijkstra'){
         var { disableNext, endNode, engine, finished, indexes, nextSteps, states, stateIndex, startNode, targetAll } = this.state;
 
-        var { file: { nodes }, currentNode, phase, step, substep } = states[stateIndex];
+        var { file: { nodes }, currentNode, phase, substep } = states[stateIndex];
 
         var algorithm = require(`../algorithms/${name}`);
 
@@ -250,15 +250,31 @@ class SPP extends Component {
                     states.push(newState);
                 }
                 else{
-                    let node = newState.file.nodes[indexes[currentNode]]
+                    let node = newState.file.nodes[indexes[currentNode]];
                     node.type = node.prevType;
                     delete node.prevType;
 
-                    currentNode = nextSteps[step];
+                    if(node.type !== 'startNode') node.type = 'markedNode';
+
+                    currentNode = null;
+                    if(nextSteps.length > 0) currentNode = nextSteps.reduce( (p, c) => {
+                            let prev = newState.file.nodes[indexes[p]];
+                            let curr = newState.file.nodes[indexes[c]];
+
+                            return prev && curr ? (
+                                prev.type !== 'markedNode' && curr.type !== 'markedNode' ? (
+                                    prev.distance < curr.distance ? p : c 
+                                ) : prev.type !== 'markedNode' ? p : (
+                                    curr.type !== 'markedNode' ? c : null
+                                )
+                            ) : (
+                                prev ? p : (
+                                    curr ? c : null
+                                )
+                            )
+                        });
 
                     if(!currentNode){
-                        phase++;
-                        step = 0;
 
                         if(targetAll){
                             disableNext = true;
@@ -280,6 +296,8 @@ class SPP extends Component {
                         }
                     }
                     else{
+                        nextSteps = nextSteps.filter( n => n !== currentNode );
+
                         node = newState.file.nodes[indexes[currentNode]]
                         node.prevType = node.type;
                         node.type = 'currentNode';

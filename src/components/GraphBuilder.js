@@ -59,6 +59,14 @@ class GraphBuilder extends Component {
                         </symbol>
                     )
                 },
+                markedNode: {
+                    shapeId: "#markedNode",
+                    shape: (
+                        <symbol viewBox="0 0 150 150" id="markedNode" key="6">
+                            <circle cx="75" cy="75" r="15" stroke={colors.marked} strokeWidth="2"/>
+                        </symbol>
+                    )
+                },
                 pathNode: {
                     shapeId: "#pathNode",
                     shape: (

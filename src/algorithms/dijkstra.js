@@ -17,7 +17,7 @@ export function process(state, edge, endNode, nextSteps, indexes){
     var {file: {nodes}, currentNode } = state;
     edge.type = 'visitedEdge';
 
-    state.info = [`Scanning leaving star for node ${nodes[indexes[currentNode]].title}`, `Found node ${nodes[indexes[edge.target]].title}`]
+    state.info = [`Permanently marked node ${nodes[indexes[currentNode]].title}`, `Scanning leaving star for node ${nodes[indexes[currentNode]].title}`, `Found node ${nodes[indexes[edge.target]].title}`]
     
     if(edge.target !== endNode && nodes[indexes[edge.target]].type !== 'visitedNode'){
         nextSteps.push(edge.target);
